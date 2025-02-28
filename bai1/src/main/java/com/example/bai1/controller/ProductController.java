@@ -21,6 +21,14 @@ public class ProductController {
         return products;
     }
 
+
+//    Product product = Product.builder()
+//        .id("1")
+//        .brand("appel")
+//        .build();
+//
+
+
 }
 
 
