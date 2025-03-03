@@ -19,8 +19,8 @@ public class ProductController {
             new Product("6","samsung","ngon",1226,"nokia"),
             new Product("7","iphone 18","ngon",1224,"samsung")));
 
-//
-//    1. Lấy thông tin chi tiết của một sản phẩm
+
+    //    1. Lấy thông tin chi tiết của một sản phẩm
 //    API: GET /products/{id}
 //    Mô tả: Trả về chi tiết của sản phẩm dựa trên id được cung cấp.
     @GetMapping("/{id}")
