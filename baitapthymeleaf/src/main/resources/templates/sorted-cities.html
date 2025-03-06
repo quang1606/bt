@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<h1>Danh sach sap xep thoe thanh pho</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>id</th>
+        <th>fullname</th>
+        <th>job</th>
+        <th>gender</th>
+        <th>city</th>
+        <th>salary</th>
+        <th>birthday</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="person : ${sortedPeople}">
+        <td th:text="${person.id}"></td>
+        <td th:text="${person.fullName}"></td>
+        <td th:text="${person.job}"></td>
+        <td th:text="${person.gender}"></td>
+        <td th:text="${person.city}"></td>
+        <td th:text="${person.salary}"></td>
+        <td th:text="${person.birthday}"></td>
+    </tr>
+    </tbody>
+</table>
+<a th:href="@{/}">Quay lại trang chủ</a>
+</body>
+</html>
