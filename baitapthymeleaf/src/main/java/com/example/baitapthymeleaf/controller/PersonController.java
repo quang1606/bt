@@ -5,8 +5,10 @@ import com.example.baitapthymeleaf.model.Person;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class PersonController {
@@ -57,6 +59,27 @@ public class PersonController {
             model.addAttribute("sortedPeople", sortedPeople);
             return "sorted-cities.html"; // Trả về trang sắp xếp theo thành phố
         }
-    }
+        @GetMapping("/{id}")
+        public String getPersonById(Model model, @PathVariable String id) {
+            List<Person> people = initDB.getPeople();
+
+            // Lấy gender của person có id trùng với id
+            String gender = people.stream()
+                    .filter(person -> person.getId().equals(id))
+                    .findFirst()
+                    .map(Person::getGender)
+                    .orElse("DefaultGender"); // Giới tính mặc định nếu không tìm thấy person
+
+            List<Person> personSort = people.stream()
+                    .filter(p -> !p.getId().equals(id) && p.getGender().equals(gender))  // Lọc person có gender giống, id khác
+                    .sorted((o1, o2) -> o2.getId().compareTo(o1.getId()))  // Sắp xếp giảm dần theo id
+                    .limit(4)  // Giới hạn lấy 4 person
+                    .toList();  // Thu thập kết quả thành List
+
+            model.addAttribute("personSort", personSort);
+            return "person-sort.html";
+        }
+
+}
 
 

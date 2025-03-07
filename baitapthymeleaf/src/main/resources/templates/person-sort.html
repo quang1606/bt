@@ -6,8 +6,10 @@
     <title>Document</title>
 </head>
 <body>
-<h1>Danh sach tat cac moi nguoi</h1>
-<table border="1">
+    <h1>Danh sach lien quan</h1>
+
+</body>
+</html><table border="1">
     <thead>
     <tr>
         <th>id</th>
@@ -17,11 +19,10 @@
         <th>city</th>
         <th>salary</th>
         <th>birthday</th>
-        <th>relate to</th>
     </tr>
     </thead>
     <tbody>
-    <tr th:each="person : ${people}">
+    <tr th:each="person : ${personSort}">
         <td th:text="${person.id}"></td>
         <td th:text="${person.fullName}"></td>
         <td th:text="${person.job}"></td>
@@ -29,11 +30,7 @@
         <td th:text="${person.city}"></td>
         <td th:text="${person.salary}"></td>
         <td th:text="${person.birthday}"></td>
-        <td><a th:href="@{/{id}(id=${person.id})}">lien quan</a></td>
-
     </tr>
     </tbody>
 </table>
 <a th:href="@{/}">Quay lại trang chủ</a>
-</body>
-</html>

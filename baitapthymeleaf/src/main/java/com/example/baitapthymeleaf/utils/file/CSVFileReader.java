@@ -15,25 +15,19 @@ import java.util.List;
 public class CSVFileReader implements IFileReader{
     @Override
     public List<Person> read(String filePath) {
-
             List<Person> people = new ArrayList<>();
             log.info("Đang đọc file CSV: {}", filePath);
-
             try (CSVReader reader = new CSVReader(new FileReader(filePath))) {
                 String[] nextLine;
                 boolean isHeader = true;
                 int lineNumber = 0;
-
-
                 while ((nextLine = reader.readNext()) != null) {
                     lineNumber++;
-
                     // Bỏ qua dòng tiêu đề
                     if (isHeader) {
                         isHeader = false;
                         continue;
                     }
-
                     // Kiểm tra dữ liệu hợp lệ
                     if (nextLine.length < 7 || nextLine[0].isBlank() || nextLine[1].isBlank() ||
                             nextLine[2].isBlank() || nextLine[3].isBlank() ||
@@ -41,7 +35,6 @@ public class CSVFileReader implements IFileReader{
                         log.warn("Dữ liệu không hợp lệ tại dòng {}: {}", lineNumber, (Object) nextLine);
                         continue;
                     }
-
                     try {
                         Person person = new Person(
                                 nextLine[0].trim(), // ID
@@ -60,7 +53,6 @@ public class CSVFileReader implements IFileReader{
             } catch (IOException | CsvValidationException e) {
                 log.error("Lỗi khi đọc file CSV: {}, Lỗi: {}", filePath, e.getMessage());
             }
-
             log.info("Đọc file hoàn tất, tổng số người: {}", people.size());
             return people;
         }
