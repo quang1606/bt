@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<h1>Danh sach sap xep thoe thanh pho</h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Name City</th>
+        <th>size</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${people}">
+        <td th:text="${entry.key}"></td>  <!-- Key (Tên thành phố) -->
+        <td th:text="${entry.value}"></td> <!-- Value (Số người) -->
+    </tr>
+    </tbody>
+</table>
+<a th:href="@{/}">Quay lại trang chủ</a>
+</body>
+</html>

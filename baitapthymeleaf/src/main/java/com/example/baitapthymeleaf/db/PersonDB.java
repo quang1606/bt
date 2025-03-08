@@ -6,5 +6,5 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PersonDB {
-    public static List<Person> people = new ArrayList<>();
+    public static List<Person> people = InitDB.people;
 }

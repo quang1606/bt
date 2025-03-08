@@ -13,7 +13,7 @@ import java.util.List;
 public class InitDB implements CommandLineRunner {
     private final IFileReader fileReader;
     @Getter
-    private List<Person> people;
+    public static List<Person> people;
     public InitDB(IFileReader fileReader) {
         this.fileReader = fileReader;
     }

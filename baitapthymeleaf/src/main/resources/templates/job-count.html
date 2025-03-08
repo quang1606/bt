@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<h1> Liệt kê danh sách nghề nghiệp và số người làm nghề đó </h1>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Name job</th>
+        <th>Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="entry : ${people}">
+        <td th:text="${entry.key}"></td>
+        <td th:text="${entry.value}"></td>
+    </tr>
+    </tbody>
+</table>
+<a th:href="@{/}">Quay lại trang chủ</a>
+</body>
+</html>
