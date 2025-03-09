@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả lọc</title>
+    <link rel="stylesheet" th:href ="@{/css/style.css}"/>
+</head>
+<body>
+<h1>Sản phẩm đã lọc</h1>
+<div id="product-list">
+    <div class="product-card" th:each="product : ${filteredProducts}">
+        <a th:href="@{/{id}(id=${product.id})}" class="product-link">
+            <div class="product-image">
+                <img th:src="${product.getThumbnail()}" th:alt="${product.getName()}">
+            </div>
+            <div class="product-info">
+                <h3 class="product-name" th:text="${product.getName()}"></h3>
+                <div class="product-price">
+                    <span class="current-price" th:text="${product.getPrice()}"></span>
+                    <span class="discount" th:text="${product.getPriceDiscount()}"></span>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+</body>
+</html>

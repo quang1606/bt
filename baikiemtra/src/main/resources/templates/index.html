@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+<link rel="stylesheet" th:href ="@{/css/style.css}"/>
+</head>
+<body>
+<h1>Trang chủ</h1>
+<form>
+    <input placeholder="Enter name..." name="keyword"/>
+</form>
+<form th:action="@{/filter}" method="get">
+    <label for="minPrice">Giá từ:</label>
+    <input type="number" id="minPrice" name="minPrice" value="0">
+    <label for="maxPrice">đến:</label>
+    <input type="number" id="maxPrice" name="maxPrice" value="1000000">
+    <button type="submit">Lọc</button>
+
+</form>
+<div id="product-list">
+    <div class="product-card" th:each="product : ${pageResponse}">
+        <a th:href="@{/{id}(id=${product.id})}" class="product-link">
+            <div class="product-image">
+                <img th:src="${product.getThumbnail()}" th:alt="${product.getName()}">
+            </div>
+            <div class="product-info">
+                <h3 class="product-name" th:text="${product.getName()}"></h3>
+                <div class="product-price">
+                    <span class="current-price" th:text="${product.getPrice()}"></span>
+                    <span class="discount" th:text="${product.getPriceDiscount()}"></span>
+                </div>
+                <div class="rating">
+                    <span class="star">⭐</span>
+                    <span class="rating-value" th:text="${product.getRating()}"></span>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+    <a th:if="${pageResponse1.getCurrentPage() > 1}"
+       th:href="'?page=' + ${pageResponse1.getCurrentPage() - 1}">
+        <button>Prev</button>
+    </a>
+
+    <a th:each="page : ${#numbers.sequence(1, totalPages)}"
+       th:href="'?page=' + ${page}"
+       th:classappend="${page == pageResponse1.getCurrentPage() ? 'active' : ''}">
+        <button th:text="${page}">1</button>
+    </a>
+
+    <a th:if="${pageResponse1.getCurrentPage() < totalPages}"
+       th:href="'?page=' + ${pageResponse1.getCurrentPage() + 1}">
+        <button>Next</button>
+    </a>
+</body>
+</html>
