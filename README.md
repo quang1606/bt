@@ -13,3 +13,4 @@ Dữ liệu sau lọc được hiển thị trên filtered-products.html.
 Dữ liệu sản phẩm được lấy từ ProductService, với hỗ trợ phân trang.
 Kết quả được hiển thị dưới dạng danh sách, mỗi trang chứa tối đa 10 sản phẩm.![image](https://github.com/user-attachments/assets/5010dd73-2749-477a-894f-5a19884f2713)
 ![image](https://github.com/user-attachments/assets/22ecc44d-0a32-4eff-8370-4a59d4697143)
+![image](https://github.com/user-attachments/assets/f0c99100-9c0a-4877-bc2b-643c91f5b7b2)
