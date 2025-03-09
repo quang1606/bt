@@ -34,7 +34,7 @@ public class ProductController {
         List<Product> filteredProducts = productService.getProductsByName(search);
         List<Product> pageResponse = pageResponseService.getData(filteredProducts, 10, page);
         PageResponse<Product> pageResponse1 = new PageResponse<>(filteredProducts, 10, page);
-        int totalPages = pageResponseService.getTotalPages(products.size(), 10);
+        int totalPages = pageResponseService.getTotalPages(filteredProducts.size(), 10);
         model.addAttribute("pageResponse1", pageResponse1);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("pageResponse", pageResponse);
@@ -53,7 +53,7 @@ public class ProductController {
     @GetMapping("/filter")
     public String filterProducts(
             @RequestParam(value = "minPrice", required = false, defaultValue = "0") double minPrice,
-            @RequestParam(value = "maxPrice", required = false, defaultValue = "1000000") double maxPrice,
+            @RequestParam(value = "maxPrice", required = false, defaultValue = "10000000") double maxPrice,
             RedirectAttributes redirectAttributes) {
 
         List<Product> filteredProducts = productService.getSortedPrice(minPrice, maxPrice);
