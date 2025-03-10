@@ -11,4 +11,5 @@ public interface ProductRepository {
     public Product getProductById(int id);
     public List<Product> getProductsByName(String name);
     public List<Product> getSortedPrice(double minPrice, double maxPrice);
+    public List<Product> getProductsByNameAndPrice(String name, double minPrice, double maxPrice);
 }

@@ -43,7 +43,22 @@ public class ProductRepositoryImpl implements ProductRepository {
                 .filter(product -> product.getPrice() >= minPrice && product.getPrice() <= maxPrice)
                 .collect(Collectors.toList());
     }
+
+    public List<Product> getProductsByNameAndPrice(String search, double minPrice, double maxPrice) {
+        List<Product> filteredProducts = new ArrayList<>();
+        if(search != null) {
+
+            filteredProducts = ProductDB.products.stream().filter(product -> product.getName().toLowerCase().contains(search.toLowerCase()) && product.getPrice() >= minPrice && product.getPrice() <= maxPrice ).toList();
+
+        }else {
+            filteredProducts = ProductDB.products.stream().filter(product -> product.getPrice() >= minPrice && product.getPrice() <= maxPrice).toList();
+        }
+        return filteredProducts;
     }
+    ;
+    }
+
+
 
 
 

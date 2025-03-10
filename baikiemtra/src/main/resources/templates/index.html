@@ -4,24 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Document</title>
-<link rel="stylesheet" th:href ="@{/css/style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <h1>Trang chủ</h1>
-<form>
-    <input placeholder="Enter name..." name="keyword"/>
-</form>
-<form th:action="@{/filter}" method="get">
-    <label for="minPrice">Giá từ:</label>
-    <input type="number" id="minPrice" name="minPrice" value="0">
-    <label for="maxPrice">đến:</label>
-    <input type="number" id="maxPrice" name="maxPrice" value="1000000">
-    <button type="submit">Lọc</button>
 
+<form th:action="@{/products/all}" method="get">
+    <input type="text" name="keyword" placeholder="Enter name..." th:value="${search}">
+    <label for="minPrice">Giá từ:</label>
+    <input type="number" id="minPrice" name="minPrice" th:value="${minPrice}">
+    <label for="maxPrice">đến:</label>
+    <input type="number" id="maxPrice" name="maxPrice" th:value="${maxPrice}">
+    <button type="submit">Tìm kiếm</button>
 </form>
+
 <div id="product-list">
     <div class="product-card" th:each="product : ${pageResponse}">
-        <a th:href="@{/{id}(id=${product.id})}" class="product-link">
+        <a th:href="@{/products/{id}(id=${product.id})}" class="product-link">
             <div class="product-image">
                 <img th:src="${product.getThumbnail()}" th:alt="${product.getName()}">
             </div>
@@ -39,20 +38,24 @@
         </a>
     </div>
 </div>
-    <a th:if="${pageResponse1.getCurrentPage() > 1}"
-       th:href="'?page=' + ${pageResponse1.getCurrentPage() - 1}">
+
+<!-- Phân trang -->
+<div class="pagination">
+    <a th:if="${currentPage > 1}"
+       th:href="@{/products/all(keyword=${search}, minPrice=${minPrice}, maxPrice=${maxPrice}, page=${currentPage - 1})}">
         <button>Prev</button>
     </a>
 
     <a th:each="page : ${#numbers.sequence(1, totalPages)}"
-       th:href="'?page=' + ${page}"
-       th:classappend="${page == pageResponse1.getCurrentPage() ? 'active' : ''}">
-        <button th:text="${page}">1</button>
+       th:href="@{/products/all(keyword=${search}, minPrice=${minPrice}, maxPrice=${maxPrice}, page=${page})}"
+       th:classappend="${page == currentPage ? 'active' : ''}">
+        <button th:text="${page}"></button>
     </a>
 
-    <a th:if="${pageResponse1.getCurrentPage() < totalPages}"
-       th:href="'?page=' + ${pageResponse1.getCurrentPage() + 1}">
+    <a th:if="${currentPage < totalPages}"
+       th:href="@{/products/all(keyword=${search}, minPrice=${minPrice}, maxPrice=${maxPrice}, page=${currentPage + 1})}">
         <button>Next</button>
     </a>
+</div>
 </body>
 </html>

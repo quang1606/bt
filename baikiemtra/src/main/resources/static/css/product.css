@@ -1,13 +1,13 @@
 /* Định dạng tổng thể */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
     margin: 0;
     padding: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* Container sản phẩm */
@@ -15,27 +15,50 @@ body {
     background: white;
     width: 90%;
     max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     padding: 20px;
     text-align: center;
+    transform: scale(1);
+    transition: transform 0.3s ease-in-out;
+}
+
+.product-detail:hover {
+    transform: scale(1.02);
 }
 
 /* Hình ảnh sản phẩm */
-.product-image img {
-    width: 100%;
-    max-height: 300px;
-    object-fit: cover;
-    border-radius: 10px;
+.product-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
 }
 
-/* Thông tin sản phẩm */
+.product-image img {
+    width: 100%;
+    max-height: 350px;
+    object-fit: cover;
+    border-radius: 12px;
+    transition: transform 0.5s ease-in-out;
+}
+
+.product-image:hover img {
+    transform: scale(1.05);
+}
+
+/* Hiệu ứng bóng cho thông tin sản phẩm */
 .product-info {
     margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .product-info h1 {
-    font-size: 24px;
+    font-size: 26px;
+    font-weight: bold;
     color: #333;
     margin-bottom: 10px;
 }
@@ -44,12 +67,15 @@ body {
     font-size: 16px;
     color: #666;
     margin-bottom: 15px;
+    line-height: 1.5;
 }
 
+/* Giá sản phẩm */
 .price {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     color: #e74c3c;
+    margin: 10px 0;
 }
 
 .discount {
@@ -58,23 +84,42 @@ body {
     font-weight: bold;
 }
 
+/* Hiệu ứng rating */
 .rating {
-    font-size: 18px;
+    font-size: 20px;
     color: #f39c12;
+    margin-top: 10px;
+}
+
+.rating .star {
+    animation: fadeIn 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0.6;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 /* Nút quay lại */
 .back-button {
     display: inline-block;
     margin-top: 20px;
-    padding: 10px 20px;
-    background: #3498db;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #3498db, #6dd5fa);
     color: white;
     text-decoration: none;
-    border-radius: 5px;
-    transition: background 0.3s;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .back-button:hover {
-    background: #2980b9;
+    background: linear-gradient(135deg, #2980b9, #3498db);
+    transform: translateY(-3px);
 }

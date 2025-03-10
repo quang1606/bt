@@ -35,7 +35,10 @@ private final ProductRepository productRepository;
         return productRepository.getSortedPrice(minPrice,maxPrice);
     }
 
-
+    @Override
+    public List<Product> getProductsByPriceRange(String search, double minPrice, double maxPrice) {
+        return productRepository.getProductsByNameAndPrice(search,minPrice,maxPrice);
+    }
 
 
 }

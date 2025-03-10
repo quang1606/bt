@@ -11,4 +11,5 @@ public interface ProductService {
     public Product getProductById(int id);
     public List<Product> getProductsByName(String name);
     public List<Product> getSortedPrice(double minPrice, double maxPrice);
+    public List<Product> getProductsByPriceRange(String search,double minPrice, double maxPrice);
 }
