@@ -11,6 +11,8 @@ Controller xử lý lọc giá và sử dụng redirect để điều hướng �
 Dữ liệu sau lọc được hiển thị trên filtered-products.html.
 4. Quản lý sản phẩm và phân trang
 Dữ liệu sản phẩm được lấy từ ProductService, với hỗ trợ phân trang.
-Kết quả được hiển thị dưới dạng danh sách, mỗi trang chứa tối đa 10 sản phẩm.![image](https://github.com/user-attachments/assets/5010dd73-2749-477a-894f-5a19884f2713)
-![image](https://github.com/user-attachments/assets/22ecc44d-0a32-4eff-8370-4a59d4697143)
+Kết quả được hiển thị dưới dạng danh sách, mỗi trang chứa tối đa 10 sản phẩm.![image](https://github.com/user-attachments/assets/0351454a-66de-45f3-aaee-1ff4c545ff28)
+
+![image](https://github.com/user-attachments/assets/b73ac4a1-d16a-436c-a613-b14b99db03e9)
+
 ![image](https://github.com/user-attachments/assets/f0c99100-9c0a-4877-bc2b-643c91f5b7b2)
