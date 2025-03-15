@@ -10,8 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,7 @@ public class ProductController {
         this.productService = productService;
         this.pageResponseService = pageResponseService;
     }
-    
+
     @GetMapping("/products/all")
     public String getProducts(@RequestParam(value = "keyword", required = false) String search,
                               @RequestParam(required = false, defaultValue = "1") int page,
