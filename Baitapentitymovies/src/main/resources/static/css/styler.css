@@ -1,0 +1,43 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+img {
+    max-width: 100%;
+}
+
+.navbar-brand img {
+    width: 150px;
+}
+
+.movie-poster {
+    height: 250px;
+}
+
+.movie-poster img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+.movie-poste img{
+    height: 350px;
+    width: 100%;
+    object-fit: cover; 
+}
+.phimle {
+    position: absolute;
+    background-color: red; /* Màu nền */
+    color: white; /* Màu chữ */
+    padding: 5px 10px; /* Tạo khoảng cách giữa chữ và nền */
+    border-radius: 5px; /* Bo góc */
+    font-size: 14px; /* Cỡ chữ */
+    font-weight: bold;
+}
+.review-author-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+}

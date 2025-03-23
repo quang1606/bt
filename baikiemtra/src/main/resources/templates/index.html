@@ -46,7 +46,7 @@
         <button>Prev</button>
     </a>
 
-    <a th:each="page : ${#numbers.sequence(1, totalPages)}"
+    <a th:each="page : ${pageResponse}"
        th:href="@{/products/all(keyword=${search}, minPrice=${minPrice}, maxPrice=${maxPrice}, page=${page})}"
        th:classappend="${page == currentPage ? 'active' : ''}">
         <button th:text="${page}"></button>
