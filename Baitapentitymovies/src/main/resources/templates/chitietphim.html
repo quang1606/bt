@@ -71,9 +71,13 @@
         <div class="row">
             <div class="col-4">
                 <div class="movie-item">
-                    <div class="movie-poste rounded overflow-hidden position-relative">
+                    <div class="movie-poste rounded overflow-hidden position-relative ">
                         <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
+                             alt="Đầu gấu đụng đầu đất"
+                             class="img-fluid"
+                             data-bs-toggle="modal"
+                             data-bs-target="#videoModal"
+                             data-video-url="https://www.youtube.com/embed/Y7ldMqNKd58?si=H02dPogLuShevaOY">
                     </div>
                 </div>
             </div>
@@ -154,6 +158,46 @@
         </div>
     </div>
 </section>
+
+<!-- Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="videoModalLabel" th:text="'Trailer: ' + ${movieList.getName()}"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div style="aspect-ratio: 16 / 9;">
+                    <iframe id="videoFrame" class="w-100 h-100"
+                            src=""
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var videoModal = document.getElementById("videoModal");
+        var videoFrame = document.getElementById("videoFrame");
+
+        videoModal.addEventListener("show.bs.modal", function (event) {
+            var button = event.relatedTarget; // Lấy phần tử được nhấn (ảnh)
+            var videoUrl = button.getAttribute("data-video-url"); // Lấy URL từ data-video-url
+            videoFrame.src = videoUrl; // Gán URL vào iframe
+        });
+
+        videoModal.addEventListener("hidden.bs.modal", function () {
+            videoFrame.src = ""; // Xóa src khi đóng modal để dừng video
+        });
+    });
+</script>
+
 <section class="py-4">
     <div class="container">
 
