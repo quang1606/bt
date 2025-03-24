@@ -34,4 +34,8 @@ public class MovieService {
 //public Movie findMovieDetails(Integer id, String slug) {
 //    return movieRepository.findByIdAndSlugAndStatus(id, slug, true);
 //}
+    public List<Movie> findBySlugAndStatus(MovieType type, Boolean status,Integer limit) {
+        List<Movie> moviePage = movieRepository.findBySlugAndStatus(type.name(), status, limit);
+        return moviePage;
+    }
 }

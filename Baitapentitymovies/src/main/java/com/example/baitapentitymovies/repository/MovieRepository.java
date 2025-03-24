@@ -57,6 +57,8 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
  @Query("SELECT m FROM Movie m WHERE m.slug = :slug AND m.id = :id AND m.status = :status")
    Movie findByIdSlugStatus(@Param("slug") String slug, @Param("id") int id, @Param("status") Boolean status);
    // Movie findByIdAndSlugAndStatus(Integer id, String slug, boolean b);
+    @Query(value = "SELECT * from movies where type = ?1 and status =?2 order by rating desc limit ?3", nativeQuery = true)
+    List<Movie> findBySlugAndStatus(String type, Boolean status, Integer limit);
 
 
 }

@@ -63,81 +63,81 @@
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#" >Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="#" th:text="${movieList.getType()}">Phim bộ</a></li>
+                <li class="breadcrumb-item"><a href="#" th:text="${movieList.getType()}"></a></li>
                 <li class="breadcrumb-item active" aria-current="page" th:text="${movieList.getName()}"></li>
             </ol>
         </nav>
 
         <div class="row">
             <div class="col-4">
-                <div class="movie-poster">
-                    <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                         alt="Đầu gấu đụng đầu đất">
+                <div class="movie-item">
+                    <div class="movie-poste rounded overflow-hidden position-relative">
+                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
+                             alt="Đầu gấu đụng đầu đất">
+                    </div>
                 </div>
             </div>
-
             <div class="col-8">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h4 th:text="${movieList.getName()}" ></h4>
-                    <h5 th:text="${movieList.getRating()}">⭐</h5>
+                    <h4 th:text="${movieList.getName()}"></h4>
+                    <h5 th:text="${movieList.getRating()}"></h5>
                 </div>
+                <div class="bg-body-tertiary p-3 ">
+                    <div class="row">
+                        <div class="col-2">
+                            <p class="fw-medium" >The loai</p>
+                        </div>
+                        <div class="col-10">
+                            <p th:text="${movieList.getSlug()}">Hai, hanh dong</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <p class="fw-medium" >Nam san xuat</p>
+                        </div>
+                        <div class="col-10">
+                            <p th:text="${movieList.getPublishDate()}">=</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <p class="fw-medium">Quốc gia</p>
+                        </div>
+                        <div class="col-10">
+                            <p th:text="${movieList.getName()}"></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <p class="fw-medium">Đạo diễn</p>
+                        </div>
+                        <div class="col-10">
+                            <p>Hai, hanh dong</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <p class="fw-medium">Diễn viên</p>
+                        </div>
+                        <div class="col-10">
+                            <p>Hai, hanh dong</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <p class="fw-medium">Nội dung phim</p>
+                        </div>
+                        <div class="col-10">
+                            <p>Hai, hanh dong</p>
+                        </div>
 
-                <div class="bg-body-tertiary p-3">
-                    <div class="row">
-                        <div class="col-2">
-                            <p class="fw-medium">Thể loại</p>
-                        </div>
-                        <div class="col-10">
-                            <p>Hài, Hành động</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-2">
-                            <p class="fw-medium">Thể loại</p>
-                        </div>
-                        <div class="col-10">
-                            <p>Hài, Hành động</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-2">
-                            <p class="fw-medium">Thể loại</p>
-                        </div>
-                        <div class="col-10">
-                            <p>Hài, Hành động</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-2">
-                            <p class="fw-medium">Thể loại</p>
-                        </div>
-                        <div class="col-10">
-                            <p>Hài, Hành động</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-2">
-                            <p class="fw-medium">Thể loại</p>
-                        </div>
-                        <div class="col-10">
-                            <p>Hài, Hành động</p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-2">
-                            <p class="fw-medium">Thể loại</p>
-                        </div>
-                        <div class="col-10">
-                            <p>Hài, Hành động</p>
-                        </div>
                     </div>
                 </div>
-
-                <button class="btn btn-danger mt-3 px-5">Xem phim</button>
+                <button class="btn btn-danger mt-2 px-4">Xem phim</button>
             </div>
         </div>
 
-        <div class="row">
+        <div th:if="${movieList.getType().name() == 'PHIM_BO'}" class="row">
             <h4>Tập phim</h4>
             <div>
                 <button class="btn btn-dark">Tập 1</button>
@@ -154,83 +154,34 @@
         </div>
     </div>
 </section>
-
-<section class="py-4 bg-body-tertiary">
+<section class="py-4">
     <div class="container">
+
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <h4>Phim đề xuất</h4>
+            <h4>Phim đề xuất </h4>
+
         </div>
         <div class="row">
-            <div class="col-2">
+            <div class="col-2" th:each="movie : ${moviePage}">
                 <div class="movie-item">
-                    <div class="movie-poster rounded overflow-hidden">
-                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
-                    </div>
-                    <div class="movie-info">
-                        <p class="mt-3 mb-0">Đầu gấu đụng đầu đất</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="movie-item">
-                    <div class="movie-poster rounded overflow-hidden">
-                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
-                    </div>
-                    <div class="movie-info">
-                        <p class="mt-3 mb-0">Đầu gấu đụng đầu đất</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="movie-item">
-                    <div class="movie-poster rounded overflow-hidden">
-                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
-                    </div>
-                    <div class="movie-info">
-                        <p class="mt-3 mb-0">Đầu gấu đụng đầu đất</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="movie-item">
-                    <div class="movie-poster rounded overflow-hidden">
-                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
-                    </div>
-                    <div class="movie-info">
-                        <p class="mt-3 mb-0">Đầu gấu đụng đầu đất</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="movie-item">
-                    <div class="movie-poster rounded overflow-hidden">
-                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
-                    </div>
-                    <div class="movie-info">
-                        <p class="mt-3 mb-0">Đầu gấu đụng đầu đất</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-2">
-                <div class="movie-item">
-                    <div class="movie-poster rounded overflow-hidden">
-                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
-                    </div>
-                    <div class="movie-info">
-                        <p class="mt-3 mb-0">Đầu gấu đụng đầu đất</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
+                    <div class="movie-poster rounded overflow-hidden position-relative">
+
+                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
+                             alt="Đầu gấu đụng đầu đất">
+                    </div>
+                    <div class="movie-info">
+                        <p class="mt-3 mb-0" th:text="${movie.getName()}"></p>
+                    </div>
+                </div>
+            </div>
+
+
+            </div>
+
+        </div>
+
+</section>
 <section class="py-4">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -256,8 +207,8 @@
                 </div>
                 <div class="review-content mt-3">
                     <p>Phim dở, không có gì đặc sắc ngoài bắn nhau chí choé, mục đích thì phi lý, john wick quay lại
-                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không ấn
-                        tượng</p>
+                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không
+                        ấn tượng</p>
                 </div>
             </div>
 
@@ -279,8 +230,8 @@
                 </div>
                 <div class="review-content mt-3">
                     <p>Phim dở, không có gì đặc sắc ngoài bắn nhau chí choé, mục đích thì phi lý, john wick quay lại
-                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không ấn
-                        tượng</p>
+                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không
+                        ấn tượng</p>
                 </div>
             </div>
 
@@ -302,8 +253,8 @@
                 </div>
                 <div class="review-content mt-3">
                     <p>Phim dở, không có gì đặc sắc ngoài bắn nhau chí choé, mục đích thì phi lý, john wick quay lại
-                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không ấn
-                        tượng</p>
+                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không
+                        ấn tượng</p>
                 </div>
             </div>
 
@@ -325,8 +276,8 @@
                 </div>
                 <div class="review-content mt-3">
                     <p>Phim dở, không có gì đặc sắc ngoài bắn nhau chí choé, mục đích thì phi lý, john wick quay lại
-                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không ấn
-                        tượng</p>
+                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không
+                        ấn tượng</p>
                 </div>
             </div>
 
@@ -348,8 +299,8 @@
                 </div>
                 <div class="review-content mt-3">
                     <p>Phim dở, không có gì đặc sắc ngoài bắn nhau chí choé, mục đích thì phi lý, john wick quay lại
-                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không ấn
-                        tượng</p>
+                        giết người vì mất chó, tay này thì mất con, motif dễ đoán, quá quen thuộc, nhìn chung không
+                        ấn tượng</p>
                 </div>
             </div>
         </div>
@@ -369,7 +320,6 @@
         </nav>
     </div>
 </section>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
