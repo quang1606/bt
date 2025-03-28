@@ -2,18 +2,20 @@ package com.example.baitapentitymovies.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
-@Entity
+@ToString
 @Getter
-
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@Table(name="actors")
-public class Actors {
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Entity
+@Table(name = "country")
+public class Country {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
@@ -23,11 +25,6 @@ public class Actors {
 
     @Column(unique = true, nullable = false)
     String slug;
-
-    String avatar;
-
-    @Column(columnDefinition = "TEXT")
-    String bio;
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

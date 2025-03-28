@@ -1,10 +1,17 @@
 package com.example.baitapentitymovies.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "posts")
 public class Posts {
     @Id
@@ -17,7 +24,7 @@ public class Posts {
     @Column(columnDefinition =  "TEXT")
     private String description;
     private String thumbnail;
-    private String status;
+    private Boolean status;
     @Column(name = "create_at")
     private LocalDateTime createdAt;
     @Column(name = "update_at")
@@ -25,4 +32,7 @@ public class Posts {
     @Column(name = "pusblished_at")
     private LocalDateTime publishedAt;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

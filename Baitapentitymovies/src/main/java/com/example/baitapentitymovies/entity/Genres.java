@@ -1,10 +1,17 @@
 package com.example.baitapentitymovies.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name="genres")
 public class Genres {
     @Id

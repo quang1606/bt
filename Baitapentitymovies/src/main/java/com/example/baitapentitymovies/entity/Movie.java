@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
@@ -36,5 +38,32 @@ public class Movie {
     private LocalDateTime updateAt;
     @Column(name = "pusblished_at")
     private LocalDateTime publishDate;
+    @ManyToOne
+    @JoinColumn(name = "country_id")
+    Country country;
+
+    @ManyToMany
+    @JoinTable(
+            name = "movies_genres",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    List<Genres> genres;
+
+    @ManyToMany
+    @JoinTable(
+            name = "movies_actors",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "actor_id")
+    )
+    List<Actors> actors;
+
+    @ManyToMany
+    @JoinTable(
+            name = "movies_directors",
+            joinColumns = @JoinColumn(name = "movie_id"),
+            inverseJoinColumns = @JoinColumn(name = "director_id")
+    )
+    List<Directors> directors;
 
 }

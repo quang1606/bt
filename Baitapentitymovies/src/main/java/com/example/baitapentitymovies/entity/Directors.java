@@ -1,21 +1,34 @@
 package com.example.baitapentitymovies.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name="directors")
 public class Directors {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String name;
+    Integer id;
 
-    private String slug;
-    private String avatar;
-@Column(columnDefinition = "TEXT")
-    private String bio;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Column(unique = true, nullable = false)
+    String name;
+
+    @Column(unique = true, nullable = false)
+    String slug;
+
+    String avatar;
+
+    @Column(columnDefinition = "TEXT")
+    String bio;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

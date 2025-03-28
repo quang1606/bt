@@ -2,10 +2,16 @@ package com.example.baitapentitymovies.entity;
 
 import com.example.baitapentitymovies.model.enums.Role;
 import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.IdGeneratorType;
 
 import java.time.LocalDateTime;
-
+@Getter
+@Setter
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Table(name = "users")
 public class User {
     @Id
