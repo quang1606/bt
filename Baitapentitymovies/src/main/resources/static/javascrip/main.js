@@ -42,17 +42,44 @@ function highlightStars(rating) {
     });
 }
 
+// them vao danh sach yeu thich
+const favoriteBtn = document.getElementById('favorite-btn');
+const favoriteAlert = document.getElementById('favorite-alert');
+let isFavorite = false; // Replace with actual logic to check if the movie is in the favorite list
+
+favoriteBtn.addEventListener('click', () => {
+    isFavorite = !isFavorite;
+    favoriteBtn.textContent = isFavorite ? 'Đã thêm vào danh sách yêu thích' : 'Thêm vào danh sách yêu thích';
+    favoriteBtn.classList.toggle('btn-primary', isFavorite);
+    favoriteBtn.classList.toggle('btn-outline-primary', !isFavorite);
+
+    // Show alert
+    favoriteAlert.textContent = isFavorite
+        ? 'Phim đã được thêm vào danh sách yêu thích!'
+        : 'Phim đã bị xóa khỏi danh sách yêu thích!';
+    favoriteAlert.classList.remove('alert-danger', 'alert-success');
+    favoriteAlert.classList.add(isFavorite ? 'alert-success' : 'alert-danger');
+    favoriteAlert.style.display = 'block';
+
+    // Hide alert after 3 seconds
+    setTimeout(() => {
+        favoriteAlert.style.display = 'none';
+    }, 3000);
+
+    // Add logic to update the favorite list in your backend or local storage
+});
+
+// Initialize button state
+if (isFavorite) {
+    favoriteBtn.textContent = 'Đã thêm vào danh sách yêu thích';
+    favoriteBtn.classList.add('btn-primary');
+    favoriteBtn.classList.remove('btn-outline-primary');
+}
+
 
 // Hàm format ngày theo định dạng dd/MM/yyyy
-const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-    day = day < 10 ? '0' + day : day;
-    month = month < 10 ? '0' + month : month;
-    return `${day}/${month}/${year}`;
-};
+const formatDate = (dateStr) =>
+   new Date(dateStr).toLocaleDateString();
 
 // Hàm render danh sách reviews sử dụng template string
 const renderReviews = (reviews) => {
@@ -75,9 +102,9 @@ const renderReviews = (reviews) => {
             <div class="review-content mt-3">
                 <p>${review.content}</p>
             </div>
-            <div class="review-actions mt-2">
-                <button class="btn btn-sm btn-primary" onclick="handleEditReviewClick(event, ${review.id}, '${review.content}', ${review.rating})" >Sửa</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteReview(${review.id})">Xóa</button>
+            <div  class="review-actions mt-2">
+                <button class="btn btn-sm btn-primary edit-btn" onclick="handleEditReviewClick(event, ${review.id}, '${review.content}', ${review.rating})" >Sửa</button>
+                <button class="btn btn-sm btn-danger delete-btn" onclick="deleteReview(${review.id})">Xóa</button>
             </div>
         </div>
     `).join('');
@@ -148,12 +175,9 @@ const deleteReview = async (id) => {
 };
 
 
-
-
 // Xử lý submit form tạo review
 async function handleCreateReview(event) {
     event.preventDefault();
-
     // Validate content
     const content = reviewContentEl.value.trim();
     if (!content) {

@@ -1,5 +1,7 @@
 package com.example.baitapentitymovies.controller.web;
 
+import com.example.baitapentitymovies.entity.Episodes;
+import com.example.baitapentitymovies.service.EpisodesService;
 import org.springframework.ui.Model;
 
 import com.example.baitapentitymovies.entity.Movie;
@@ -18,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebController {
     private final MovieService movieService;
+    private final EpisodesService episodesService;
     @GetMapping("/")
     public String GetHomePage(Model model ) {
         List<Movie> moviePage = movieService.findByStatus(true,4);
@@ -66,11 +69,25 @@ public class WebController {
     public String getMovieDetailsPage(@PathVariable Integer id, @PathVariable String slug, Model model) {
         Movie movieList = movieService.findByIdSlugStatus(id, slug);
         List<Movie> moviePage = movieService.findBySlugAndStatus(movieList.getType(),true,6);
+        List<Episodes> episodes =movieService.findEpisodesByMovieTypeSorted(id,true);
         model.addAttribute("movieList", movieList);
         model.addAttribute("movieType", movieList.getType());
         model.addAttribute("moviePage", moviePage);
+        model.addAttribute("episodes", episodes);
 
         return "chitietphim";
+    }
+    @GetMapping("/xem-phim/{id}/{slug}")
+    public String getMovieDetailsPage(@PathVariable Integer id, @PathVariable String slug, Model model,@RequestParam String tap) {
+       Movie movie = movieService.findByIdSlugStatus(id, slug);
+        model.addAttribute("movie", movie);
+        List<Episodes> episodesList=episodesService.findEpisodeByMovieId(id);
+        Episodes episodes = episodesService.findEpisodeByDisplayOrder(id,tap);
+        List<Movie> moviePage = movieService.findBySlugAndStatus(movie.getType(),true,6);
+        model.addAttribute("episodesList", episodesList);
+        model.addAttribute("episodes", episodes);
+        model.addAttribute("moviePage", moviePage);
+        return "xem-phim";
     }
 
 }

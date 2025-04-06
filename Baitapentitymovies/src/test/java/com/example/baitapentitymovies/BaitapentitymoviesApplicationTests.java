@@ -15,9 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 @SpringBootTest
 class BaitapentitymoviesApplicationTests {
 
@@ -269,7 +272,7 @@ class BaitapentitymoviesApplicationTests {
                                 .name("Tập " + (i + 1))
                                 .duration(faker.number().numberBetween(40, 60))
                                 .displayOrder(i + 1)
-                                .videoUrl("https://www.youtube.com/embed/W_0AMP9yO1w?si=JcCeGorHalCHKCPl")
+                                .videoUrl("https://www.youtube.com/embed/n4S5-nRUWbE?si=OlDp1WFbsxzXDtV6")
                                 .status(true)
                                 .createdAt(LocalDateTime.now())
                                 .updatedAt(LocalDateTime.now())
@@ -319,8 +322,35 @@ class BaitapentitymoviesApplicationTests {
                 }
             }
         }
+    @Test
+    void save_favorites() {
+        Faker faker = new Faker();
+        Random rd = new Random();
 
-        @Test
+        List<User> users = userRepository.findAll();  // Lấy tất cả người dùng từ cơ sở dữ liệu
+        List<Movie> movies = movieRepository.findAll();  // Lấy tất cả phim từ cơ sở dữ liệu
+
+        for (User user : users) {
+            // Random số lượng favorites từ 5 đến 10 cho mỗi người dùng
+            for (int i = 0; i < rd.nextInt(20) + 5; i++) {
+                Movie rdMovie = movies.get(rd.nextInt(movies.size()));  // Chọn ngẫu nhiên một bộ phim
+
+                // Sử dụng Faker để tạo ra một ngày ngẫu nhiên trong quá khứ (ví dụ 1-5 năm trước)
+                LocalDateTime randomDate = faker.date().past(365 * 5, TimeUnit.DAYS).toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime();  // Chuyển thành LocalDateTime
+
+                Favorites favorite = Favorites.builder()
+                        .createdAt(randomDate)  // Thời gian ngẫu nhiên từ Faker
+                        .user(user)  // Người dùng
+                        .movie(rdMovie)  // Bộ phim
+                        .build();
+                favoriteRepository.save(favorite);  // Lưu vào cơ sở dữ liệu
+            }
+        }
+    }
+
+    @Test
         void testQuery() {
             // Movie movie = movieRepository.findByName("Dinah Soares");
             // System.out.println(movie);

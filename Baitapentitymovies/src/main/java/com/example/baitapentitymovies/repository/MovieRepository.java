@@ -1,6 +1,7 @@
 package com.example.baitapentitymovies.repository;
 
 
+import com.example.baitapentitymovies.entity.Episodes;
 import com.example.baitapentitymovies.entity.Movie;
 import com.example.baitapentitymovies.model.enums.MovieType;
 import org.springframework.data.domain.Page;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Integer> {
+
+
     Movie findByName(String name);
 
     List<Movie> findByNameContaining(String name);
@@ -55,12 +58,22 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
 
     @Query(value = "select *from movies where status = ?1 order by  rating desc limit ?2", nativeQuery = true)
     List<Movie> findByStatus(Boolean status, Integer limit);
+
+
  @Query("SELECT m FROM Movie m WHERE m.slug = :slug AND m.id = :id AND m.status = :status")
    Movie findByIdSlugStatus(@Param("slug") String slug, @Param("id") int id, @Param("status") Boolean status);
-   // Movie findByIdAndSlugAndStatus(Integer id, String slug, boolean b);
+
+
+
     @Query(value = "SELECT * from movies where type = ?1 and status =?2 order by rating desc limit ?3", nativeQuery = true)
     List<Movie> findBySlugAndStatus(String type, Boolean status, Integer limit);
 
 
-    Optional<Object> findByIdAndStatusTrue(Integer movieId);
+
+    @Query("SELECT e FROM Episodes e  WHERE e.movie.id=:id and e.status = :status ORDER BY e.displayOrder ASC")
+    List<Episodes> findEpisodesByMovieTypeSorted( @Param("id") int id, @Param("status")Boolean status);
+
+
+
+
 }

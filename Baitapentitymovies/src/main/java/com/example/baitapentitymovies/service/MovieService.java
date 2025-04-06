@@ -1,6 +1,7 @@
 package com.example.baitapentitymovies.service;
 
 
+import com.example.baitapentitymovies.entity.Episodes;
 import com.example.baitapentitymovies.entity.Movie;
 import com.example.baitapentitymovies.model.enums.MovieType;
 import com.example.baitapentitymovies.repository.MovieRepository;
@@ -38,4 +39,11 @@ public class MovieService {
         List<Movie> moviePage = movieRepository.findBySlugAndStatus(type.name(), status, limit);
         return moviePage;
     }
+    public List<Episodes> findEpisodesByMovieTypeSorted(int id,Boolean status) {
+        List<Episodes> episode = movieRepository.findEpisodesByMovieTypeSorted(id,status);
+        return episode;
+    }
+
+
+
 }
