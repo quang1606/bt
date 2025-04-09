@@ -146,7 +146,7 @@
                     <a class="btn btn-danger mt-3 px-5"
                        th:href="'/xem-phim/' + ${movieList.id} + '/' + ${movieList.slug} + '?tap=' + ${movieList.type.toString().equals('PHIM_BO') ? episode.displayOrder : 'full'}"
                     >Xem phim</a>
-                    <button id="favorite-btn" class="btn btn-outline-primary mt-3 px-5">Thêm vào danh sách yêu thích</button>
+                    <button id="favorite-btn" class="btn btn-outline-primary mt-3 px-5"  >Thêm vào danh sách yêu thích</button>
 
                 </th:block>
                 <div id="favorite-alert" class="alert alert-success shadow" role="alert">
@@ -155,6 +155,7 @@
 
             </div>
         </div>
+
 
         <div th:if="${movieList.getType().name() == 'PHIM_BO'}" class="row">
             <h4>Tập phim</h4>

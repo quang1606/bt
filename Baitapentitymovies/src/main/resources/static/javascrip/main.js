@@ -42,39 +42,82 @@ function highlightStars(rating) {
     });
 }
 
-// them vao danh sach yeu thich
-const favoriteBtn = document.getElementById('favorite-btn');
-const favoriteAlert = document.getElementById('favorite-alert');
-let isFavorite = false; // Replace with actual logic to check if the movie is in the favorite list
 
-favoriteBtn.addEventListener('click', () => {
-    isFavorite = !isFavorite;
-    favoriteBtn.textContent = isFavorite ? 'Đã thêm vào danh sách yêu thích' : 'Thêm vào danh sách yêu thích';
-    favoriteBtn.classList.toggle('btn-primary', isFavorite);
-    favoriteBtn.classList.toggle('btn-outline-primary', !isFavorite);
 
-    // Show alert
-    favoriteAlert.textContent = isFavorite
+const favoriteButton  = document.getElementById('favorite-btn');
+const favoriteAlertt = document.getElementById('favorite-alert');
+
+// Giả sử bạn có movieId được nhúng từ server
+const movieId = movie.id
+let isFavoritee = false; // Cần cập nhật từ server nếu có logic kiểm tra trước
+
+
+// Gọi API kiểm tra xem phim có trong danh sách yêu thích không
+fetch(`/api/favourite/1/${movieId}`)
+    .then(response => response.json())
+    .then(data => {
+        isFavoritee = data;
+        updateFavoriteUI();
+    })
+    .catch(error => {
+        console.error('Lỗi khi kiểm tra trạng thái yêu thích:', error);
+    });
+
+// Hàm cập nhật giao diện theo trạng thái yêu thích
+function updateFavoriteUI() {
+    favoriteButton.textContent = isFavoritee ? 'Đã thêm vào danh sách yêu thích' : 'Thêm vào danh sách yêu thích';
+    favoriteButton.classList.toggle('btn-primary', isFavoritee);
+    favoriteButton.classList.toggle('btn-outline-primary', !isFavoritee);
+}
+
+
+
+favoriteButton.addEventListener('click', () => {
+    isFavoritee = !isFavoritee;
+
+    // Cập nhật giao diện
+    favoriteButton.textContent = isFavoritee ? 'Đã thêm vào danh sách yêu thích' : 'Thêm vào danh sách yêu thích';
+    favoriteButton.classList.toggle('btn-primary', isFavoritee);
+    favoriteButton.classList.toggle('btn-outline-primary', !isFavoritee);
+
+    favoriteAlertt.textContent = isFavoritee
         ? 'Phim đã được thêm vào danh sách yêu thích!'
         : 'Phim đã bị xóa khỏi danh sách yêu thích!';
-    favoriteAlert.classList.remove('alert-danger', 'alert-success');
-    favoriteAlert.classList.add(isFavorite ? 'alert-success' : 'alert-danger');
-    favoriteAlert.style.display = 'block';
+    favoriteAlertt.classList.remove('alert-danger', 'alert-success');
+    favoriteAlertt.classList.add(isFavoritee ? 'alert-success' : 'alert-danger');
+    favoriteAlertt.style.display = 'block';
 
-    // Hide alert after 3 seconds
     setTimeout(() => {
-        favoriteAlert.style.display = 'none';
+        favoriteAlertt.style.display = 'none';
     }, 3000);
 
-    // Add logic to update the favorite list in your backend or local storage
+    // Gọi API tương ứng
+    if (isFavoritee) {
+        fetch(`/api/favourite/${movieId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ movieId: movieId })
+
+        }).then(response => {
+            if (!response.ok) throw new Error('Lỗi khi thêm vào yêu thích');
+        }).catch(err => {
+            console.error(err);
+            alert('Có lỗi xảy ra khi thêm vào danh sách yêu thích!');
+        });
+    } else {
+        fetch(`/api/favourite/${movieId}`, {
+            method: 'DELETE'
+        }).then(response => {
+            if (!response.ok) throw new Error('Lỗi khi xóa khỏi yêu thích');
+        }).catch(err => {
+            console.error(err);
+            alert('Có lỗi xảy ra khi xóa khỏi danh sách yêu thích!');
+        });
+    }
 });
 
-// Initialize button state
-if (isFavorite) {
-    favoriteBtn.textContent = 'Đã thêm vào danh sách yêu thích';
-    favoriteBtn.classList.add('btn-primary');
-    favoriteBtn.classList.remove('btn-outline-primary');
-}
 
 
 // Hàm format ngày theo định dạng dd/MM/yyyy

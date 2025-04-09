@@ -46,7 +46,7 @@ private final MovieRepository movieRepository;
         User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("Khong tim thay id co"+userId));
 
         Favorites favorites = favoritesRepository.findFavoritesByMovie_IdAndUser_Id(id,userId);
-        if(favorites.getUser().getId().equals(user.getId())){
+        if(!favorites.getUser().getId().equals(user.getId())){
             throw new RuntimeException("Khong co quyen xoa review");
         }
         favoritesRepository.delete(favorites);
@@ -60,5 +60,18 @@ private final MovieRepository movieRepository;
             throw new RuntimeException("Khong co quyen xoa review");
         }
         favoritesRepository.deleteAll(favoritesList);
+    }
+
+//    public boolean isFavourite( int movieid) {
+//        Integer userId=1;
+//        Movie movie1 = movieRepository.findById(movieid).orElseThrow(()->new RuntimeException("Khong tim thay phim id co"+movieid));
+//        long count = favoritesRepository.countByMovieIdAndUserId(movie1.getId(), userId);
+//        return count > 0;
+//
+//    }
+
+    public boolean isFavourite(int movieId) {
+        Integer userId = 1; // sau này nên lấy từ SecurityContext
+        return favoritesRepository.existsByMovie_IdAndUser_Id(movieId, userId);
     }
 }

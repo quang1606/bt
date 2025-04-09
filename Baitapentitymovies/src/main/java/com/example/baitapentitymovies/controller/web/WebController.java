@@ -89,5 +89,11 @@ public class WebController {
         model.addAttribute("moviePage", moviePage);
         return "xem-phim";
     }
+    @GetMapping("/phim-yeu-thich")
+    public String getFavorites(Model model,@RequestParam(defaultValue = "1") Integer page,
+                               @RequestParam(defaultValue = "18") Integer pageSize) {
+        model.addAttribute("currentPage", page);
+        return "phimyeuthich";
+    }
 
 }

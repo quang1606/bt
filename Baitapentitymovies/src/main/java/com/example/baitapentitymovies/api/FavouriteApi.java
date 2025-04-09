@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class FavouriteApi {
     private final   FavouriteService favouriteService;
     @GetMapping()
-    public ResponseEntity<?> getFavourite( @RequestParam (defaultValue = "1") Integer page,@RequestParam(defaultValue = "10") Integer pageSize) {
+    public ResponseEntity<?> getFavourite( @RequestParam (defaultValue = "1") Integer page,@RequestParam(defaultValue = "12") Integer pageSize) {
         Page<Movie> moviePage =  favouriteService.getFavouriteMovie(page,pageSize);
         return ResponseEntity.ok(moviePage);
     }
@@ -25,8 +25,8 @@ public class FavouriteApi {
         return ResponseEntity.ok(favorites);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteFavouriteMovie(@RequestBody Movie movie) {
-        favouriteService.deleteFavouriteMovie(movie.getId());
+    public ResponseEntity<?> deleteFavouriteMovie(@PathVariable int id) {
+        favouriteService.deleteFavouriteMovie(id);
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("/all")
@@ -34,4 +34,10 @@ public class FavouriteApi {
         favouriteService.deleteAllFavouriteMovie();
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/{id}/{movieid}")
+    public ResponseEntity<?> getMovieById( @PathVariable int movieid) {
+        boolean isFavourite = favouriteService.isFavourite(movieid);
+        return ResponseEntity.ok(isFavourite);
+    }
+
 }
