@@ -3,6 +3,7 @@ package com.example.baitapentitymovies.service;
 
 import com.example.baitapentitymovies.entity.Episodes;
 import com.example.baitapentitymovies.entity.Movie;
+import com.example.baitapentitymovies.entity.Posts;
 import com.example.baitapentitymovies.model.enums.MovieType;
 import com.example.baitapentitymovies.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,5 @@ public class MovieService {
         List<Episodes> episode = movieRepository.findEpisodesByMovieTypeSorted(id,status);
         return episode;
     }
-
-
 
 }

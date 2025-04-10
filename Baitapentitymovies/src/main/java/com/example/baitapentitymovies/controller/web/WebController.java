@@ -1,7 +1,9 @@
 package com.example.baitapentitymovies.controller.web;
 
 import com.example.baitapentitymovies.entity.Episodes;
+import com.example.baitapentitymovies.entity.Posts;
 import com.example.baitapentitymovies.service.EpisodesService;
+import com.example.baitapentitymovies.service.PostsService;
 import org.springframework.ui.Model;
 
 import com.example.baitapentitymovies.entity.Movie;
@@ -21,18 +23,20 @@ import java.util.List;
 public class WebController {
     private final MovieService movieService;
     private final EpisodesService episodesService;
+    private final PostsService postsService;
     @GetMapping("/")
     public String GetHomePage(Model model ) {
         List<Movie> moviePage = movieService.findByStatus(true,4);
         List<Movie> phimLeList = movieService.findByType(MovieType.PHIM_LE,true,1,6).getContent();
         List<Movie> phimBoList = movieService.findByType(MovieType.PHIM_BO,true,1,6).getContent();
         List<Movie> phimChieuRapList= movieService.findByType(MovieType.PHIM_CHIEU_RAP,true,1,6).getContent();
-
+        Page<Posts> tinTuc = postsService.finByPost(true,1,4);
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("phimLeList", phimLeList);
         model.addAttribute("phimBoList", phimBoList);
+        model.addAttribute("tinTuc", tinTuc);
         model.addAttribute("phimChieuRapList", phimChieuRapList);
-        return "index";
+        return "web/index";
     }
     @GetMapping("/phim-bo")
     public String getPhimBoPage(@RequestParam(defaultValue = "1") Integer page,
@@ -42,7 +46,7 @@ public class WebController {
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", moviePage.getTotalPages());
-        return "phimbo";
+        return "web/phimbo";
     }
     @GetMapping("/phim-chieu-rap")
     public String getPhimRapPage(@RequestParam(defaultValue = "1") Integer page,
@@ -52,7 +56,7 @@ public class WebController {
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", moviePage.getTotalPages());
-        return "phimChieuRap";
+        return "web/phimChieuRap";
     }
     @GetMapping("/phim-le")
     public String getPhimLePage(@RequestParam(defaultValue = "1") Integer page,
@@ -62,7 +66,7 @@ public class WebController {
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", moviePage.getTotalPages());
-        return "phimle";
+        return "web/phimle";
     }
 
     @GetMapping("/phim/{id}/{slug}")
@@ -75,7 +79,7 @@ public class WebController {
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("episodes", episodes);
 
-        return "chitietphim";
+        return "web/chitietphim";
     }
     @GetMapping("/xem-phim/{id}/{slug}")
     public String getMovieDetailsPage(@PathVariable Integer id, @PathVariable String slug, Model model,@RequestParam String tap) {
@@ -87,13 +91,31 @@ public class WebController {
         model.addAttribute("episodesList", episodesList);
         model.addAttribute("episodes", episodes);
         model.addAttribute("moviePage", moviePage);
-        return "xem-phim";
+        return "web/xem-phim";
     }
     @GetMapping("/phim-yeu-thich")
     public String getFavorites(Model model,@RequestParam(defaultValue = "1") Integer page,
                                @RequestParam(defaultValue = "18") Integer pageSize) {
+
         model.addAttribute("currentPage", page);
-        return "phimyeuthich";
+        return "web/phimyeuthich";
     }
+    @GetMapping("/tin-tuc")
+    public String getPost(Model model, @RequestParam(defaultValue = "1") Integer page,@RequestParam(defaultValue = "10") Integer pageSize) {
+        Page<Posts> postsPage = postsService.finByPost(true,page,pageSize);
+        model.addAttribute("postsPage", postsPage);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", postsPage.getTotalPages());
+        return "web/tintuc";
+    }
+   @GetMapping("/chi-tiet-tin-tuc/{id}")
+    public String getPostDetail(Model model, @PathVariable Integer id , @RequestParam(defaultValue = "1") Integer page,@RequestParam(defaultValue = "5") Integer pageSize)  {
+        Posts posts = postsService.finByPostStatusAndId(true,id);
+        Page<Posts> postsPage = postsService.finByPost(true,page,pageSize);
+       model.addAttribute("postsPage", postsPage);
+        model.addAttribute("posts", posts);
+        return "web/chitiettintuc";
+
+   }
 
 }

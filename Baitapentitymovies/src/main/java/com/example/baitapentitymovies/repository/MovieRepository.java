@@ -3,6 +3,7 @@ package com.example.baitapentitymovies.repository;
 
 import com.example.baitapentitymovies.entity.Episodes;
 import com.example.baitapentitymovies.entity.Movie;
+import com.example.baitapentitymovies.entity.Posts;
 import com.example.baitapentitymovies.model.enums.MovieType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -72,7 +73,6 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
 
     @Query("SELECT e FROM Episodes e  WHERE e.movie.id=:id and e.status = :status ORDER BY e.displayOrder ASC")
     List<Episodes> findEpisodesByMovieTypeSorted( @Param("id") int id, @Param("status")Boolean status);
-
 
 
 

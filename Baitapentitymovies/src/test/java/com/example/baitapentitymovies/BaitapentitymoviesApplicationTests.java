@@ -155,6 +155,17 @@ class BaitapentitymoviesApplicationTests {
             }
         }
 
+    @Test
+    void update_user_password() {
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            String password = user.getPassword();
+            String newPassword = passwordEncoder.encode(password);
+            user.setPassword(newPassword);
+            userRepository.save(user);
+        }
+    }
+
         @Test
         void save_posts() {
             Faker faker = new Faker();
