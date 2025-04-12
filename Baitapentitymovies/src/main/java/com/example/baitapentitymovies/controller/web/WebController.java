@@ -74,11 +74,12 @@ public class WebController {
         Movie movieList = movieService.findByIdSlugStatus(id, slug);
         List<Movie> moviePage = movieService.findBySlugAndStatus(movieList.getType(),true,6);
         List<Episodes> episodes =movieService.findEpisodesByMovieTypeSorted(id,true);
+        Page<Movie> moviePage1 = movieService.findByTypeAndStatusAndRating(movieList.getType(),true,6);
         model.addAttribute("movieList", movieList);
         model.addAttribute("movieType", movieList.getType());
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("episodes", episodes);
-
+model.addAttribute("moviePage1", moviePage1);
         return "web/chitietphim";
     }
     @GetMapping("/xem-phim/{id}/{slug}")

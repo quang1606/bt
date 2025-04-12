@@ -218,13 +218,13 @@
 
         </div>
         <div class="row">
-            <div class="col-2" th:each="movie : ${moviePage}">
+            <div class="col-2" th:each="movie : ${moviePage1}">
                 <div class="movie-item">
 
                     <div class="movie-poster rounded overflow-hidden position-relative">
 
-                        <img src="https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg"
-                             alt="Đầu gấu đụng đầu đất">
+                        <img th:src="${movie.getThumbnail()}"
+                             th:alt="${movie.getName()}">
                     </div>
                     <div class="movie-info">
                         <p class="mt-3 mb-0" th:text="${movie.getName()}"></p>

@@ -45,4 +45,9 @@ public class MovieService {
         return episode;
     }
 
+    public Page<Movie> findByTypeAndStatusAndRating(MovieType type, boolean b, int i) {
+        Pageable pageable = PageRequest.of(1,i,Sort.by("rating").descending());
+        Page<Movie> moviePage = movieRepository.findByTypeAndStatus(type, b, pageable);
+        return moviePage;
+    }
 }
