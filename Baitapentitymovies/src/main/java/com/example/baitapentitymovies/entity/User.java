@@ -36,4 +36,6 @@ public class User {
     private LocalDateTime createdAt;
     @Column(name = "update_at")
     private LocalDateTime updatedAt;
+
+
 }

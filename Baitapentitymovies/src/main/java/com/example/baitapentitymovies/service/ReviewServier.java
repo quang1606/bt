@@ -3,11 +3,13 @@ package com.example.baitapentitymovies.service;
 import com.example.baitapentitymovies.entity.Movie;
 import com.example.baitapentitymovies.entity.Reviews;
 import com.example.baitapentitymovies.entity.User;
+import com.example.baitapentitymovies.exception.BadRequestException;
 import com.example.baitapentitymovies.model.request.CreateReviewRequest;
 import com.example.baitapentitymovies.model.request.UpdateReviewRequest;
 import com.example.baitapentitymovies.repository.MovieRepository;
 import com.example.baitapentitymovies.repository.ReviewsRepository;
 import com.example.baitapentitymovies.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +22,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class ReviewServier {
+    private final HttpSession session;
     private final ReviewsRepository reviewsRepository;
     private final MovieRepository movieRepository;
     private final UserRepository userRepository;
@@ -30,8 +33,11 @@ public class ReviewServier {
 
     public Reviews createReview(CreateReviewRequest request) {
         // TODO:fix login user
-        Integer userId=1;
-        User user=userRepository.findById(userId).orElseThrow(()->new RuntimeException("Khong tim thay id co"+userId));
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
+
            Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(()->new RuntimeException("Khong tim thay id co"+request.getMovieId()));
         Reviews reviews = Reviews.builder()
                 .content(request.getContent())
@@ -46,8 +52,11 @@ public class ReviewServier {
 
     public Reviews updateReview(Integer id, UpdateReviewRequest request) {
         // TODO:fix login user
-        Integer userId=1;
-        User user=userRepository.findById(userId).orElseThrow(()->new RuntimeException("Khong tim thay id co"+userId));
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
+
         Reviews reviews = reviewsRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay id co"+id));
 
         if (!reviews.getUser().getId().equals(user.getId())) {
@@ -60,8 +69,10 @@ public class ReviewServier {
     }
 
     public void deleteReview(Integer id) {
-        Integer userId=1;
-        User user=userRepository.findById(userId).orElseThrow(()->new RuntimeException("Khong tim thay id co"+userId));
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
         Reviews reviews = reviewsRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay id co"+id));
         if (!reviews.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Khong co quyen xoa review");

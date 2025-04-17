@@ -35,7 +35,7 @@ public class FavouriteApi {
         return ResponseEntity.ok().build();
     }
     @GetMapping("/{id}/{movieid}")
-    public ResponseEntity<?> getMovieById( @PathVariable int movieid) {
+    public ResponseEntity<?> getMovieById(@PathVariable int movieid) {
         boolean isFavourite = favouriteService.isFavourite(movieid);
         return ResponseEntity.ok(isFavourite);
     }

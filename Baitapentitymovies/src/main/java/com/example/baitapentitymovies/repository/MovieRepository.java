@@ -75,5 +75,5 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     List<Episodes> findEpisodesByMovieTypeSorted( @Param("id") int id, @Param("status")Boolean status);
 
 
-
+    Page<Movie> findByStatus(boolean status, Pageable pageable);
 }

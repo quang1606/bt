@@ -48,27 +48,45 @@ const favoriteButton  = document.getElementById('favorite-btn');
 const favoriteAlertt = document.getElementById('favorite-alert');
 
 // Giả sử bạn có movieId được nhúng từ server
-const movieId = movie.id
-let isFavoritee = false; // Cần cập nhật từ server nếu có logic kiểm tra trước
+const movieId = movie.id;
+let isFavoritee = false;
 
-
-// Gọi API kiểm tra xem phim có trong danh sách yêu thích không
-fetch(`/api/favourite/1/${movieId}`)
-    .then(response => response.json())
-    .then(data => {
-        isFavoritee = data;
-        updateFavoriteUI();
-    })
-    .catch(error => {
-        console.error('Lỗi khi kiểm tra trạng thái yêu thích:', error);
-    });
+if (typeof currentUser !== 'undefined' && currentUser !== null) {
+    const userId = currentUser.id;
+    // Gọi API kiểm tra yêu thích
+    fetch(`/api/favourite/${userId}/${movieId}`)
+        .then(response => response.json())
+        .then(data => {
+            isFavoritee = data;
+            updateFavoriteUI();
+        })
+        .catch(error => {
+            console.error('Lỗi khi kiểm tra trạng thái yêu thích:', error);
+        });
+} else {
+    console.warn('Người dùng chưa đăng nhập.');
+    // Có thể disable nút hoặc hiển thị yêu cầu đăng nhập
+    updateFavoriteUI(); // Gọi để đảm bảo UI đúng ngay cả khi chưa login
+}
 
 // Hàm cập nhật giao diện theo trạng thái yêu thích
 function updateFavoriteUI() {
-    favoriteButton.textContent = isFavoritee ? 'Đã thêm vào danh sách yêu thích' : 'Thêm vào danh sách yêu thích';
-    favoriteButton.classList.toggle('btn-primary', isFavoritee);
-    favoriteButton.classList.toggle('btn-outline-primary', !isFavoritee);
+    const favoriteButton = document.getElementById('favorite-btn');
+
+    if (!favoriteButton) return;
+
+    if (typeof currentUser === 'undefined' || currentUser === null) {
+        favoriteButton.textContent = 'Đăng nhập để thêm yêu thích';
+        favoriteButton.classList.remove('btn-primary');
+        favoriteButton.classList.add('btn-outline-secondary');
+        favoriteButton.disabled = true;
+    } else {
+        favoriteButton.textContent = isFavoritee ? 'Đã thêm vào danh sách yêu thích' : 'Thêm vào danh sách yêu thích';
+        favoriteButton.classList.toggle('btn-primary', isFavoritee);
+        favoriteButton.classList.toggle('btn-outline-primary', !isFavoritee);
+    }
 }
+
 
 
 
@@ -187,7 +205,7 @@ const getReviews = async (page) => {
         const movieId = movie.id;
         const response = await axios.get('/api/reviews', {
             params: {
-                movieId: movieId, // Sửa thành movieId = 1
+                movieId: movieId,
                 page: page,
                 pageSize: 5
             }

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -60,6 +61,9 @@ class BaitapentitymoviesApplicationTests {
 
         @Autowired
         private UserRepository userRepository;
+
+        @Autowired
+        private BCryptPasswordEncoder bCryptPasswordEncoder;
 
         @Test
         void save_countries() {
@@ -160,7 +164,7 @@ class BaitapentitymoviesApplicationTests {
         List<User> users = userRepository.findAll();
         for (User user : users) {
             String password = user.getPassword();
-            String newPassword = passwordEncoder.encode(password);
+            String newPassword = bCryptPasswordEncoder.encode(password);
             user.setPassword(newPassword);
             userRepository.save(user);
         }

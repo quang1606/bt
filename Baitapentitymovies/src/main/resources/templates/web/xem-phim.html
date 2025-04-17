@@ -54,8 +54,7 @@
                     <a class="nav-link text-white" href="#">Mua phim</a>
                 </div>
                 <div>
-                    <a class="nav-link text-white" href="#"
-                    >Đăng nhập</a
+                    <a class="nav-link ju text-white" th:href="@{/dangnhap-dangky}">Đăng nhập</a>
                     >
                 </div>
             </div>
@@ -213,6 +212,8 @@
         </div>
         <div class="row">
             <div class="col-2" th:each="movi : ${moviePage}">
+                <a class="text-decoration-none text-dark"
+                   th:href="@{/phim/{id}/{slug}(id=${movi.getId()}, slug=${movi.getSlug()})}">
                 <div class="movie-item">
 
                     <div class="movie-poster rounded overflow-hidden position-relative">
@@ -224,6 +225,7 @@
                         <p class="mt-3 mb-0" th:text="${movi.getName()}"></p>
                     </div>
                 </div>
+                    </a>
             </div>
 
 
@@ -344,6 +346,7 @@
     let movie = [[${movieList}]];
 </script>
 <script th:src="@{/javascrip/main.js}"></script>
+<script th:src="@{/javascrip/auth.js}"></script>
 </body>
 
 </html>

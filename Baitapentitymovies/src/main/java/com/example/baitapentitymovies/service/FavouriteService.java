@@ -3,9 +3,11 @@ package com.example.baitapentitymovies.service;
 import com.example.baitapentitymovies.entity.Favorites;
 import com.example.baitapentitymovies.entity.Movie;
 import com.example.baitapentitymovies.entity.User;
+import com.example.baitapentitymovies.exception.BadRequestException;
 import com.example.baitapentitymovies.repository.FavoritesRepository;
 import com.example.baitapentitymovies.repository.MovieRepository;
 import com.example.baitapentitymovies.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,16 +24,22 @@ public class FavouriteService {
 private final FavoritesRepository favoritesRepository;
 private final UserRepository userRepository;
 private final MovieRepository movieRepository;
+private final HttpSession session;
     public Page<Movie> getFavouriteMovie( Integer page, Integer pageSize) {
-        Integer userId=1;
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
         Pageable pageable = PageRequest.of(page-1, pageSize, Sort.by("createdAt").descending());
-        Page<Movie> moviePage = favoritesRepository.findMoviesByUserId(userId,pageable);
+        Page<Movie> moviePage = favoritesRepository.findMoviesByUserId(user.getId(),pageable);
         return moviePage;
     }
 
     public Favorites postFavouriteMovie(int id) {
-        Integer userId=1;
-        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("Khong tim thay id co"+userId));
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
         Movie movie1 = movieRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay phim id co"+id));
         Favorites favorites = Favorites.builder()
                 .createdAt(LocalDateTime.now())
@@ -42,10 +50,11 @@ private final MovieRepository movieRepository;
     }
 
     public void deleteFavouriteMovie(int id) {
-        Integer userId=1;
-        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("Khong tim thay id co"+userId));
-
-        Favorites favorites = favoritesRepository.findFavoritesByMovie_IdAndUser_Id(id,userId);
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
+        Favorites favorites = favoritesRepository.findFavoritesByMovie_IdAndUser_Id(id,user.getId());
         if(!favorites.getUser().getId().equals(user.getId())){
             throw new RuntimeException("Khong co quyen xoa review");
         }
@@ -53,9 +62,11 @@ private final MovieRepository movieRepository;
     }
 
     public void deleteAllFavouriteMovie() {
-        Integer userId=1;
-        User user = userRepository.findById(userId).orElseThrow(()->new RuntimeException("Khong tim thay id co"+userId));
-        List<Favorites> favoritesList = favoritesRepository.findByUserId(userId);
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
+        List<Favorites> favoritesList = favoritesRepository.findByUserId(user.getId());
         if (!favoritesList.get(0).getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Khong co quyen xoa review");
         }
@@ -71,7 +82,10 @@ private final MovieRepository movieRepository;
 //    }
 
     public boolean isFavourite(int movieId) {
-        Integer userId = 1; // sau này nên lấy từ SecurityContext
-        return favoritesRepository.existsByMovie_IdAndUser_Id(movieId, userId);
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            throw new BadRequestException("Ban chua dnag nhap!");
+        }
+        return favoritesRepository.existsByMovie_IdAndUser_Id(movieId, user.getId());
     }
 }

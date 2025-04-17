@@ -2,8 +2,11 @@ package com.example.baitapentitymovies.controller.web;
 
 import com.example.baitapentitymovies.entity.Episodes;
 import com.example.baitapentitymovies.entity.Posts;
+import com.example.baitapentitymovies.entity.User;
 import com.example.baitapentitymovies.service.EpisodesService;
 import com.example.baitapentitymovies.service.PostsService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.ui.Model;
 
 import com.example.baitapentitymovies.entity.Movie;
@@ -24,6 +27,7 @@ public class WebController {
     private final MovieService movieService;
     private final EpisodesService episodesService;
     private final PostsService postsService;
+    private final HttpSession session;
     @GetMapping("/")
     public String GetHomePage(Model model ) {
         List<Movie> moviePage = movieService.findByStatus(true,4);
@@ -75,11 +79,16 @@ public class WebController {
         List<Movie> moviePage = movieService.findBySlugAndStatus(movieList.getType(),true,6);
         List<Episodes> episodes =movieService.findEpisodesByMovieTypeSorted(id,true);
         Page<Movie> moviePage1 = movieService.findByTypeAndStatusAndRating(movieList.getType(),true,6);
+
         model.addAttribute("movieList", movieList);
         model.addAttribute("movieType", movieList.getType());
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("episodes", episodes);
-model.addAttribute("moviePage1", moviePage1);
+        model.addAttribute("moviePage1", moviePage1);
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("user", user);
+        }
         return "web/chitietphim";
     }
     @GetMapping("/xem-phim/{id}/{slug}")
@@ -118,5 +127,10 @@ model.addAttribute("moviePage1", moviePage1);
         return "web/chitiettintuc";
 
    }
+   @GetMapping("/dangnhap-dangky")
+    public String getSignIn(){
+        return "web/dangnhapdangky";
+   }
+
 
 }
