@@ -4,6 +4,7 @@ import com.example.baitapentitymovies.entity.Movie;
 import com.example.baitapentitymovies.model.request.CreateMovieRequest;
 import com.example.baitapentitymovies.model.request.UpdateMovieRequest;
 import com.example.baitapentitymovies.service.MovieService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,16 +20,16 @@ public class AdminMovieApi {
     @GetMapping()
     public ResponseEntity<?> getAllMovies(@RequestParam (defaultValue = "1") Integer page, @RequestParam (defaultValue = "10") Integer pageSize) {
 
-        Page<Movie> moviePage = movieService.findByStatuss(true,page,pageSize);
+        Page<Movie> moviePage = movieService.findByAll(page,pageSize);
         return ResponseEntity.ok(moviePage);
     }
     @PostMapping ("")
-    public ResponseEntity<?> addMovie(@RequestBody CreateMovieRequest createMovieRequest) {
+    public ResponseEntity<?> addMovie(@RequestBody @Valid CreateMovieRequest createMovieRequest) {
         Movie movie = movieService.createMovie(createMovieRequest);
         return ResponseEntity.ok(movie);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMovie(@PathVariable Integer id, @RequestBody UpdateMovieRequest updateMovieRequest) {
+    public ResponseEntity<?> updateMovie(@PathVariable Integer id, @RequestBody @Valid UpdateMovieRequest updateMovieRequest) {
         Movie movie = movieService.updateRequest(updateMovieRequest,id);
         return ResponseEntity.ok(movie);
     }

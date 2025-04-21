@@ -34,9 +34,7 @@ public class ReviewServier {
     public Reviews createReview(CreateReviewRequest request) {
         // TODO:fix login user
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
 
            Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(()->new RuntimeException("Khong tim thay id co"+request.getMovieId()));
         Reviews reviews = Reviews.builder()
@@ -53,9 +51,7 @@ public class ReviewServier {
     public Reviews updateReview(Integer id, UpdateReviewRequest request) {
         // TODO:fix login user
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
 
         Reviews reviews = reviewsRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay id co"+id));
 
@@ -70,9 +66,7 @@ public class ReviewServier {
 
     public void deleteReview(Integer id) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
         Reviews reviews = reviewsRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay id co"+id));
         if (!reviews.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Khong co quyen xoa review");

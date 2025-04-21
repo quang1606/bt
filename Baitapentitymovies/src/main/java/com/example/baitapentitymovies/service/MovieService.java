@@ -14,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,6 +28,7 @@ public class MovieService {
     private final GenresRepository genresRepository;
     private final ActorsRepository actorsRepository;
     private final DirectorsRepository directorsRepository;
+
     public Page<Movie> findByType(MovieType type, Boolean status, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("publishDate").descending());
         Page<Movie> moviePage = movieRepository.findByTypeAndStatus(type, status, pageable);
@@ -62,22 +62,15 @@ public class MovieService {
 
     //Admin
 
-    public Page<Movie> findByStatuss(boolean b, Integer page, Integer pageSize) {
-        Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("publishDate").descending());
-        Page<Movie> moviePage = movieRepository.findByStatus(true,pageable);
+    public Page<Movie> findByAll( Integer page, Integer pageSize) {
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Page<Movie> moviePage = movieRepository.findAll(pageable);
         return moviePage;
     }
 
 
     public Movie createMovie(CreateMovieRequest request) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Bạn chưa đăng nhập");
-        }
 
-        if (user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("Bạn không có quyền quản trị");
-        }
         Country country = countryRepository.findById(request.getCountryId())
                 .orElseThrow(() -> new IllegalArgumentException("Quốc gia không tồn tại"));
 
@@ -128,13 +121,6 @@ public class MovieService {
     }
 
     public Movie updateRequest(UpdateMovieRequest request, Integer id) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Bạn chưa đăng nhập");
-        }
-        if (user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("Bạn không có quyền quản trị");
-        }
 
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy phim với id = " + id));
@@ -176,13 +162,6 @@ public class MovieService {
     }
 
     public void daleteMovie(Integer id) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Bạn chưa đăng nhập");
-        }
-        if (user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("Bạn không có quyền quản trị");
-        }
 
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy phim với id = " + id));

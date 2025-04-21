@@ -8,9 +8,11 @@ import com.example.baitapentitymovies.model.request.UpdateEpisodeRequest;
 import com.example.baitapentitymovies.model.request.UpdateMovieRequest;
 import com.example.baitapentitymovies.service.EpisodesService;
 import com.example.baitapentitymovies.service.MovieService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,17 +27,17 @@ public class AdminEpisodesApi {
             @RequestParam(defaultValue = "10") Integer pageSize,
             @PathVariable("movieId") Integer movieId) {
 
-        Page<Episodes> moviePage = episodesService.findByStatusAndMovieId(true, page, pageSize, movieId);
+        Page<Episodes> moviePage = episodesService.findByMovieId(page, pageSize, movieId);
         return ResponseEntity.ok(moviePage);
     }
 
     @PostMapping("")
-    public ResponseEntity<?> addEpisodes(@RequestBody CreateEpisodeRequest createEpisodeRequest) {
+    public ResponseEntity<?> addEpisodes(@RequestBody   CreateEpisodeRequest createEpisodeRequest) {
         Episodes episodes = episodesService.createEpisodes(createEpisodeRequest);
         return ResponseEntity.ok(episodes);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMovie(@PathVariable Integer id, @RequestBody UpdateEpisodeRequest updateEpisodeRequest) {
+    public ResponseEntity<?> updateMovie(@PathVariable Integer id, @RequestBody @Valid UpdateEpisodeRequest updateEpisodeRequest) {
         Episodes episodes = episodesService.updateEpisodes(updateEpisodeRequest,id);
         return ResponseEntity.ok(episodes);
     }

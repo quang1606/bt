@@ -27,9 +27,7 @@ private final MovieRepository movieRepository;
 private final HttpSession session;
     public Page<Movie> getFavouriteMovie( Integer page, Integer pageSize) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
         Pageable pageable = PageRequest.of(page-1, pageSize, Sort.by("createdAt").descending());
         Page<Movie> moviePage = favoritesRepository.findMoviesByUserId(user.getId(),pageable);
         return moviePage;
@@ -37,9 +35,7 @@ private final HttpSession session;
 
     public Favorites postFavouriteMovie(int id) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
         Movie movie1 = movieRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay phim id co"+id));
         Favorites favorites = Favorites.builder()
                 .createdAt(LocalDateTime.now())
@@ -51,9 +47,7 @@ private final HttpSession session;
 
     public void deleteFavouriteMovie(int id) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
         Favorites favorites = favoritesRepository.findFavoritesByMovie_IdAndUser_Id(id,user.getId());
         if(!favorites.getUser().getId().equals(user.getId())){
             throw new RuntimeException("Khong co quyen xoa review");
@@ -63,9 +57,7 @@ private final HttpSession session;
 
     public void deleteAllFavouriteMovie() {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
         List<Favorites> favoritesList = favoritesRepository.findByUserId(user.getId());
         if (!favoritesList.get(0).getUser().getId().equals(user.getId())) {
             throw new RuntimeException("Khong co quyen xoa review");
@@ -83,9 +75,7 @@ private final HttpSession session;
 
     public boolean isFavourite(int movieId) {
         User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Ban chua dnag nhap!");
-        }
+
         return favoritesRepository.existsByMovie_IdAndUser_Id(movieId, user.getId());
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EpisodesRepository extends JpaRepository<Episodes, Integer> {
    
@@ -17,4 +18,9 @@ public interface EpisodesRepository extends JpaRepository<Episodes, Integer> {
     List<Episodes> findByMovie_IdAndStatusOrderByDisplayOrderAsc(Integer id, Boolean status);
 
     Page<Episodes> findByMovie_IdAndStatus(int movieId, Boolean status, Pageable pageable);
+
+
+    Optional<Episodes> findByMovie_IdAndDisplayOrder(int movieId, int displayOrder);
+
+    Page<Episodes> findByMovie_Id(Integer movieId, Pageable pageable);
 }

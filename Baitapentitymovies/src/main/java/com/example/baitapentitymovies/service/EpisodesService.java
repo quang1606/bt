@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -37,16 +38,7 @@ public class EpisodesService {
     }
 
 
-    public Page<Episodes> findByStatusAndMovieId(boolean b, Integer page, Integer pageSize, Integer movieId) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Bạn chưa đăng nhập");
-        }
-
-        if (user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("Bạn không có quyền quản trị");
-        }
-
+    public Page<Episodes> findByMovieId( Integer page, Integer pageSize, Integer movieId) {
 
         if (movieId == null) {
             throw new BadRequestException("Thiếu movieId");
@@ -57,21 +49,20 @@ public class EpisodesService {
 
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        Page<Episodes> episodesPage = episodesRepository.findByMovie_IdAndStatus(movieId, true, pageable);
+        Page<Episodes> episodesPage = episodesRepository.findByMovie_Id(movieId,pageable);
         return episodesPage;
     }
 
     public Episodes createEpisodes(CreateEpisodeRequest request) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Bạn chưa đăng nhập");
-        }
 
-        if (user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("Bạn không có quyền quản trị");
-        }
+
         Movie movie = movieRepository.findById(request.getMovieId())
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy phim với ID: " + request.getMovieId()));
+        Optional<Episodes> existingEpisodeOpt = episodesRepository.findByMovie_IdAndDisplayOrder(movie.getId(), request.getDisplayOrder());
+        if (existingEpisodeOpt.isPresent()) {
+            throw new BadRequestException("Thứ tự hiển thị (displayOrder) " + request.getDisplayOrder() + " đã tồn tại cho phim này.");
+        }
+
         Episodes episodes = Episodes.builder()
                 .name(request.getName())
                 .displayOrder(request.getDisplayOrder())
@@ -83,19 +74,15 @@ public class EpisodesService {
     }
 
     public Episodes updateEpisodes(UpdateEpisodeRequest request, Integer id) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Bạn chưa đăng nhập");
-        }
 
-        if (user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("Bạn không có quyền quản trị");
-        }
 
         // Kiểm tra xem tập phim có tồn tại không
         Episodes episodes = episodesRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy tập phim với ID: " + id));
-
+        Optional<Episodes> existingEpisodeOpt = episodesRepository.findByMovie_IdAndDisplayOrder(episodes.getMovie().getId(), request.getDisplayOrder());
+        if (existingEpisodeOpt.isPresent()) {
+            throw new BadRequestException("Thứ tự hiển thị (displayOrder) " + request.getDisplayOrder() + " đã tồn tại cho phim này.");
+        }
         // Cập nhật thông tin tập phim từ request
         episodes.setName(request.getName());
         episodes.setDisplayOrder(request.getDisplayOrder());
@@ -106,13 +93,7 @@ public class EpisodesService {
 
 
     public void daleteEpisodes(Integer id) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) {
-            throw new BadRequestException("Bạn chưa đăng nhập");
-        }
-        if (user.getRole() != Role.ADMIN) {
-            throw new BadRequestException("Bạn không có quyền quản trị");
-        }
+
         Episodes episodes = episodesRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException("Không tìm thấy tập phim với ID: " + id));
         episodesRepository.delete(episodes);
