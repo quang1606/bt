@@ -85,6 +85,7 @@ public class WebController {
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("episodes", episodes);
         model.addAttribute("moviePage1", moviePage1);
+
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("user", user);

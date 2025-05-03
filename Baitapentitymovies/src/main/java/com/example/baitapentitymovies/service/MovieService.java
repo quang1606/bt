@@ -1,8 +1,10 @@
 package com.example.baitapentitymovies.service;
 
 
+import com.example.baitapentitymovies.config.CloudinaryConfig;
 import com.example.baitapentitymovies.entity.*;
 import com.example.baitapentitymovies.exception.BadRequestException;
+import com.example.baitapentitymovies.exception.NotFoundException;
 import com.example.baitapentitymovies.model.enums.MovieType;
 import com.example.baitapentitymovies.model.enums.Role;
 import com.example.baitapentitymovies.model.request.CreateMovieRequest;
@@ -15,9 +17,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,7 @@ public class MovieService {
     private final GenresRepository genresRepository;
     private final ActorsRepository actorsRepository;
     private final DirectorsRepository directorsRepository;
+    private final CloudinaryService cloudinaryService;
 
     public Page<Movie> findByType(MovieType type, Boolean status, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("publishDate").descending());
@@ -168,5 +174,23 @@ public class MovieService {
          movieRepository.delete(movie);
     }
 
+
+    public Map uploadThumbnail(Integer id, MultipartFile file) {
+        Movie movie = movieRepository.findById(id)
+
+                .orElseThrow(() -> new NotFoundException("Không tìm thấy phim với id " + id));
+        try {
+            Map map = cloudinaryService.uploadFile(file, "file_java_27_28");
+            String url = map.get("url").toString();
+            movie.setThumbnail(url);
+            movie.setUpdateAt(LocalDateTime.now());
+            movieRepository.save(movie);
+
+            return Map.of("url", url);
+
+        } catch (Exception e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
 
 }

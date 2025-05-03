@@ -13,9 +13,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationProvider)
-                .addPathPatterns("/api/reviews", "/api/reviews/**","/api/favourite", "/api/favourite/**","/phim-yeu-thich");
-        registry.addInterceptor(authorizationInterceptor)
-                .addPathPatterns("/api/admin", "/api/admin/**");
+                .addPathPatterns("/api/reviews/**","/api/favourite", "/api/favourite/**","/phim-yeu-thich");
+//        registry.addInterceptor(authorizationInterceptor)
+//                .addPathPatterns("/api/admin", "/api/admin/**");
 
     }
 

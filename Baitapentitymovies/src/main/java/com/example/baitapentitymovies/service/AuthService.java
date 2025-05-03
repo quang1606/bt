@@ -28,4 +28,5 @@ public class AuthService {
     public void logout() {
         httpSession.removeAttribute("user");
     }
+
 }

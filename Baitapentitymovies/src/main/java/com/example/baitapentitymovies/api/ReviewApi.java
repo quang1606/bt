@@ -10,30 +10,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/reviews")
+//@RequestMapping("/api/reviews")
 @RequiredArgsConstructor
 public class ReviewApi {
     private final ReviewServier  reviewServier;
-        @GetMapping()
+        @GetMapping("/api/reviewss/get")
         public ResponseEntity<?> getReviews(@RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "18") Integer pageSize,@RequestParam Integer movieId) {
             Page<Reviews> reviewsPage = reviewServier.getReviewsByMovie(movieId,page,pageSize);
             return ResponseEntity.ok(reviewsPage);
         }
 
-    @PostMapping()
+    @PostMapping("/api/reviews")
     public ResponseEntity<?> createReview(@RequestBody CreateReviewRequest request) {
         Reviews review = reviewServier.createReview(request);
         return ResponseEntity.ok(review);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/reviews/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable Integer id) {
        reviewServier.deleteReview(id);
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/reviews/{id}")
 
     public ResponseEntity<?> updateReview( @PathVariable Integer id,@RequestBody UpdateReviewRequest request) {
         Reviews review = reviewServier.updateReview(id,request);

@@ -60,8 +60,25 @@
                 </ul>
             </div>
             <div>
-                <a class="nav-link ju text-white" th:href="@{/dangnhap-dangky}">Đăng nhập</a>
-            </div>
+                <div>
+                    <!-- Liên kết Đăng nhập khi chưa đăng nhập -->
+                    <a th:if="${session.user==null}" class="nav-link ju text-white" th:href="@{/dangnhap-dangky}">Đăng nhập</a>
+
+                    <!-- Dropdown thông tin người dùng khi đã đăng nhập -->
+                    <div class="dropdown" th:if="${session.user!=null}">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="${session.user.getName()}">
+                            <!-- Tên người dùng sẽ được hiển thị ở đây -->
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a th:if= "${session.user.role.toString().equals('ADMIN')}" class="dropdown-item" href="#">Trang quan tri</a></li>
+                            <li><a class="dropdown-item" href="/phim-yeu-thich">Phim yeu thich</a></li>
+                            <li><a class="dropdown-item" href="#">Ho so ca nhan</a></li>
+                            <li>
+                                <!-- Thay đổi ID ở đây -->
+                                <a id="logout-link" class="dropdown-item" href="#">Dang xuat</a>
+                            </li>
+                        </ul>
+                    </div>            </div>
         </div>
     </nav>
 </header>

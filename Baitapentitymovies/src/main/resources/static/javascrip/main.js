@@ -140,38 +140,73 @@ favoriteButton.addEventListener('click', () => {
 
 // Hàm format ngày theo định dạng dd/MM/yyyy
 const formatDate = (dateStr) =>
-   new Date(dateStr).toLocaleDateString();
+    new Date(dateStr).toLocaleDateString();
 
 // Hàm render danh sách reviews sử dụng template string
 const renderReviews = (reviews) => {
-    const html = reviews.map(review => `
-        <div class="review-item">
-            <div class="review-author d-flex justify-content-between">
-                <div class="d-flex">
-                    <div class="review-author-avatar">
-                        <img src="${review.user.avatar || 'https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg'}" alt="">
-                    </div>
-                    <div class="ms-3">
-                        <p class="fw-semibold">${review.user.displayName}</p>
-                        <p>⭐️ ${review.rating}/10</p>
-                    </div>
-                </div>
-                <div>
-                    <p>${formatDate(review.createdAt)}</p>
-                </div>
-            </div>
-            <div class="review-content mt-3">
-                <p>${review.content}</p>
-            </div>
-            <div  class="review-actions mt-2">
-                <button class="btn btn-sm btn-primary edit-btn" onclick="handleEditReviewClick(event, ${review.id}, '${review.content}', ${review.rating})" >Sửa</button>
+    // Lấy ID người dùng đang đăng nhập (nếu có)
+    // Quan trọng: Đảm bảo biến `currentUser` được định nghĩa trong scope này
+    // hoặc là biến global.
+    const loggedInUserId = (typeof currentUser !== 'undefined' && currentUser && currentUser.id) ? currentUser.id : null;
+
+    const html = reviews.map(review => {
+        // Kiểm tra xem người dùng hiện tại có phải là tác giả của review này không
+        // Quan trọng: Đảm bảo API trả về review.user.id
+        const isAuthor = loggedInUserId && review.user && review.user.id && loggedInUserId === review.user.id;
+
+        // Tạo chuỗi HTML cho các nút hành động (chỉ khi là tác giả)
+        let actionButtonsHTML = '';
+        if (isAuthor) {
+            // --- QUAN TRỌNG ---
+            // Để tránh lỗi XSS và lỗi cú pháp khi content chứa ký tự đặc biệt (như ', ", `),
+            // hãy escape nó đúng cách khi đưa vào thuộc tính onclick.
+            // Sử dụng JSON.stringify là một cách an toàn và hiệu quả.
+            const escapedContent = JSON.stringify(review.content);
+
+            actionButtonsHTML = `
+                <button class="btn btn-sm btn-primary edit-btn" onclick='handleEditReviewClick(event, ${review.id}, ${escapedContent}, ${review.rating})'>Sửa</button>
                 <button class="btn btn-sm btn-danger delete-btn" onclick="deleteReview(${review.id})">Xóa</button>
+            `;
+            // Lưu ý: Đổi dấu nháy bao quanh onclick thành nháy đơn (') để không xung đột với nháy kép (") của JSON.stringify
+        }
+
+        // --- CẢNH BÁO BẢO MẬT ---
+        // Việc chèn trực tiếp review.content vào HTML như dưới đây có thể gây ra lỗ hổng XSS
+        // nếu nội dung chứa mã HTML/JavaScript độc hại.
+        // Bạn NÊN sanitize (làm sạch) nội dung này ở phía server TRƯỚC KHI lưu vào DB
+        // hoặc escape nó ở phía client TRƯỚC KHI hiển thị.
+        // Ví dụ đơn giản (nhưng chưa đủ hoàn toàn): thay thế < > &
+        const safeContent = review.content.replace(/</g, "<").replace(/>/g, ">").replace(/&/g, "&");
+        // Tốt nhất là dùng thư viện sanitize chuyên dụng.
+
+        return `
+            <div class="review-item">
+                <div class="review-author d-flex justify-content-between">
+                    <div class="d-flex">
+                        <div class="review-author-avatar">
+                            <img src="${review.user.avatar || 'https://homepage.momocdn.net/cinema/momo-cdn-api-220615142913-637909001532744942.jpg'}" alt="">
+                        </div>
+                        <div class="ms-3">
+                            <p class="fw-semibold">${review.user.displayName || 'Người dùng ẩn danh'}</p>
+                            <p>⭐️ ${review.rating}/10</p>
+                        </div>
+                    </div>
+                    <div>
+                        <p>${formatDate(review.createdAt)}</p>
+                    </div>
+                </div>
+                <div class="review-content mt-3">
+                   
+                    <p>${safeContent}</p>
+                </div>
+                <div class="review-actions mt-2">
+                    ${actionButtonsHTML} 
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     document.querySelector('.review-list').innerHTML = html;
 };
-
 // Hàm render phân trang sử dụng template string
 const renderPagination = (totalPages, currentPage) => {
     let paginationHTML = `
@@ -197,13 +232,13 @@ const renderPagination = (totalPages, currentPage) => {
     `;
     document.querySelector('nav.mt-4').innerHTML = paginationHTML;
 };
-
+isUpdating = false;
 
 // Hàm lấy reviews (sử dụng async/await, arrow function và try/catch)
 const getReviews = async (page) => {
     try {
         const movieId = movie.id;
-        const response = await axios.get('/api/reviews', {
+        const response = await axios.get('/api/reviewss/get', {
             params: {
                 movieId: movieId,
                 page: page,
@@ -239,41 +274,88 @@ const deleteReview = async (id) => {
 // Xử lý submit form tạo review
 async function handleCreateReview(event) {
     event.preventDefault();
-    // Validate content
+
+    // === Thêm kiểm tra rating ===
+    if (currentRating === 0) {
+        alert("Vui lòng chọn số sao đánh giá.");
+        return;
+    }
+    // === Kết thúc kiểm tra rating ===
+
     const content = reviewContentEl.value.trim();
     if (!content) {
         alert("Vui lòng nhập nội dung");
+        reviewContentEl.focus(); // Focus vào textarea
         return;
     }
 
-    // Tạo payload cho API
     const payload = {
         content: content,
         rating: currentRating,
         movieId: movie.id,
     };
 
+    const loginPageUrl = '/dangnhap-dangky'; // <-- Đảm bảo URL này đúng
+
     try {
         await axios.post('/api/reviews', payload);
         alert("Tạo review thành công");
 
-        // Đóng modal sử dụng Bootstrap 5
+        // Đóng modal và reset
         const modalEl = document.getElementById('modal-review');
         const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-        modalInstance.hide();
+        modalInstance.hide(); // Đóng modal
 
-        // Reset form và UI rating
-        reviewForm.reset();
-        currentRating = 0;
-        resetStars();
-        ratingValue.textContent = "";
+        reviewForm.reset(); // Reset form
+        currentRating = 0;  // Reset rating state
+        resetStars();       // Reset UI sao
+        if (ratingValue) ratingValue.textContent = ""; // Xóa text rating
 
-        // Nếu muốn, có thể cập nhật lại danh sách review ngay sau khi tạo
-        getReviews(1);
+        getReviews(1); // Tải lại review
+
     } catch (error) {
-        console.log(error);
+        console.error("Lỗi khi tạo review:", error); // Log lỗi chi tiết cho dev
+
+        // --- Xử lý lỗi 401 ---
+        if (error.response && error.response.status === 401) {
+            // Đóng modal trước khi hiển thị confirm (để tránh modal che confirm)
+            const modalEl = document.getElementById('modal-review');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                // Cần đợi modal ẩn hoàn toàn trước khi confirm để tránh lỗi UI
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                    if (window.confirm("Phiên đăng nhập của bạn đã hết hạn hoặc không hợp lệ. Bạn có muốn đăng nhập lại không?")) {
+                        window.location.href = loginPageUrl;
+                    }
+                }, { once: true }); // Chỉ chạy listener này 1 lần
+                modalInstance.hide();
+            } else {
+                // Nếu không tìm thấy modal instance, hiển thị confirm ngay
+                if (window.confirm("Phiên đăng nhập của bạn đã hết hạn hoặc không hợp lệ. Bạn có muốn đăng nhập lại không?")) {
+                    window.location.href = loginPageUrl;
+                }
+            }
+
+            // Reset form và trạng thái ngay cả khi người dùng không chuyển trang
+            reviewForm.reset();
+            currentRating = 0;
+            resetStars();
+            if (ratingValue) ratingValue.textContent = "";
+
+        } else {
+            // --- Xử lý các lỗi khác ---
+            const errorMessage = error.response?.data?.message // Lấy thông báo lỗi từ backend (nếu có)
+                || error.message             // Hoặc lấy thông báo lỗi mặc định
+                || "Đã có lỗi xảy ra khi gửi đánh giá."; // Thông báo chung
+            alert("Lỗi: " + errorMessage);
+            // Giữ modal mở để người dùng có thể sửa lại hoặc thử lại
+        }
     }
 }
+
+// --- Cần đảm bảo listener submit gọi hàm này ---
+// reviewForm.removeEventListener("submit", handleFormSubmit); // Xóa listener cũ nếu có
+// reviewForm.addEventListener("submit", handleCreateReview); // Thêm listener này (chỉ khi dùng cách 1)
 async function handleUpdateReview(event, reviewId) {
     event.preventDefault();
 
@@ -320,10 +402,10 @@ async function handleUpdateReview(event, reviewId) {
     }
 }
 
-// Hàm sửa review
+// Hàm xử lý khi nhấn nút sửa (không cần thay đổi nhiều, chỉ cần đảm bảo nhận đúng content)
 async function handleEditReviewClick(event, reviewId, reviewContent, reviewRating) {
-    // Điền dữ liệu vào form
-    reviewContentEl.value = reviewContent;
+    // reviewContent giờ đây là một chuỗi JS hợp lệ (nhờ JSON.stringify)
+    reviewContentEl.value = reviewContent; // Gán trực tiếp vào textarea
     currentRating = parseInt(reviewRating);
     highlightStars(currentRating);
     ratingValue.textContent = `Bạn đã đánh giá ${currentRating} sao.`;
@@ -337,11 +419,12 @@ async function handleEditReviewClick(event, reviewId, reviewContent, reviewRatin
     isUpdating = true;
     currentReviewId = reviewId;
 
-    // Loại bỏ event listener tạo review và thêm event listener cập nhật review
-    reviewForm.removeEventListener("submit", handleFormSubmit);
-    reviewForm.addEventListener("submit", handleFormSubmit);
+    // Loại bỏ event listener cũ và thêm event listener mới (logic này có vẻ hơi phức tạp, xem xét lại nếu cần)
+    // Cách làm này có thể dẫn đến việc listener bị gắn nhiều lần nếu modal đóng mở không đúng cách.
+    // Một cách tiếp cận khác là luôn giữ listener `handleFormSubmit` và chỉ thay đổi cờ `isUpdating`.
+    reviewForm.removeEventListener("submit", handleFormSubmit); // Xóa listener cũ (nếu có)
+    reviewForm.addEventListener("submit", handleFormSubmit);    // Thêm listener mới
 }
-
 // Hàm xử lý submit form (tạo hoặc cập nhật)
 async function handleFormSubmit(event) {
     if (isUpdating) {

@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,5 +39,10 @@ public class AdminMovieApi {
 
         movieService.daleteMovie(id);
         return ResponseEntity.ok().build();
+    }
+    @PostMapping ("/{id}/upload-thumbnail")
+    public ResponseEntity<?> uploadThumbnail (@RequestParam MultipartFile file, @PathVariable Integer id ) {
+
+        return ResponseEntity.ok(movieService.uploadThumbnail(id,file));
     }
 }

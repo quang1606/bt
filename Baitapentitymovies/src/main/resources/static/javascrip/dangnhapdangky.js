@@ -1,142 +1,183 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // --- Phần tử trên trang hiện tại ---
-    const signInForm = document.querySelector(".sign-in form"); // Có thể null nếu không ở trang login
-    const loginButton = signInForm?.querySelector("button");     // Dùng optional chaining (?.)
-    const loginRegisterContainer = document.getElementById('container'); // Hoặc một ID/class đặc trưng khác của trang login/register
 
-    // --- Phần tử navbar (luôn có) ---
-    const navLoginLink = document.querySelector(".nav-link.ju");
+    // --- Các phần tử và URL quan trọng ---
+    // Phần tử Navbar (sẽ chỉ tồn tại sau khi đăng nhập và render bởi Thymeleaf)
+    const logoutLink = document.getElementById('logout-link'); // ID này cần khớp với thẻ <a> đăng xuất trong template Thymeleaf của bạn
 
-    // --- Kiểm tra xem có đang ở trang đăng nhập/đăng ký không ---
-    // Cách 1: Dựa vào sự tồn tại của phần tử đặc trưng
-    const isOnLoginPage = !!loginRegisterContainer; // True nếu phần tử tồn tại
+    // Phần tử trên trang đăng nhập/đăng ký
+    const loginForm = document.getElementById('login-form'); // Form đăng nhập
+    const loginEmailInput = document.getElementById('login-email'); // Input email đăng nhập
+    const loginPasswordInput = document.getElementById('login-password'); // Input mật khẩu đăng nhập
+    // const loginErrorMessage = document.getElementById('login-error-message'); // Nếu bạn thêm div hiển thị lỗi
 
-    // Cách 2: Dựa vào URL (thay '/login-register.html' bằng path đúng)
-    // const loginRegisterPath = '/login-register.html';
-    // const isOnLoginPage = window.location.pathname === loginRegisterPath;
+    const container = document.getElementById('container'); // Container chuyển đổi form
+    const registerBtn = document.getElementById('register'); // Nút chuyển sang đăng ký
+    const loginBtn = document.getElementById('login');     // Nút chuyển sang đăng nhập (toggle)
 
-    // --- Hàm xử lý đăng nhập (chỉ hoạt động nếu ở trang login) ---
+    // URLs
+    const LOGIN_API_URL = "/api/auth/login";   // URL API Đăng nhập - **Thay đổi nếu cần**
+    const LOGOUT_API_URL = "/api/auth/logout"; // URL API Đăng xuất - **Thay đổi nếu cần**
+    const HOME_PAGE_URL = "/";                 // URL trang chủ sau khi đăng nhập - **Thay đổi nếu cần**
+    // const LOGIN_PAGE_URL = "/dangnhap-dangky"; // URL trang đăng nhập (dùng nếu muốn điều hướng về đây sau logout)
+
+    // --- Hàm xử lý đăng nhập ---
     async function handleLogin(event) {
-        event.preventDefault();
+        event.preventDefault(); // Ngăn form submit theo cách truyền thống
+        console.log("Attempting login...");
 
-        // Chỉ thực hiện nếu form đăng nhập tồn tại
-        if (!signInForm) return;
+        // Kiểm tra lại sự tồn tại của input phòng trường hợp trang lỗi
+        if (!loginEmailInput || !loginPasswordInput) {
+            console.error("Login form input elements not found!");
+            alert("Lỗi: Không tìm thấy ô nhập liệu email hoặc mật khẩu.");
+            return;
+        }
 
-        const email = signInForm.querySelector('input[type="email"]').value.trim();
-        const password = signInForm.querySelector('input[type="password"]').value.trim();
+        const email = loginEmailInput.value.trim();
+        const password = loginPasswordInput.value.trim();
+
+        // Xóa thông báo lỗi cũ (nếu bạn có div hiển thị lỗi)
+        // if (loginErrorMessage) loginErrorMessage.textContent = '';
 
         if (!email || !password) {
-            alert("Vui lòng nhập đầy đủ thông tin.");
+            // if (loginErrorMessage) loginErrorMessage.textContent = "Vui lòng nhập đầy đủ email và mật khẩu.";
+            alert("Vui lòng nhập đầy đủ email và mật khẩu."); // Dùng alert nếu không có div lỗi
             return;
         }
 
-        const payload = { email: email, password: password };
+        const payload = {
+            email: email,
+            password: password
+        };
+
+        // Vô hiệu hóa nút submit để tránh click nhiều lần
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        if(submitButton) submitButton.disabled = true;
+        if(submitButton) submitButton.textContent = 'Đang xử lý...'; // Thay đổi text nút (tùy chọn)
+
 
         try {
-            // Giả sử bạn dùng axios
-            await axios.post("/api/auth/login", payload);
-            sessionStorage.setItem("isLoggedIn", "true");
+            // Gọi API đăng nhập bằng Axios
+            const response = await axios.post(LOGIN_API_URL, payload);
+
+            console.log("Login successful:", response.data);
             alert("Đăng nhập thành công!");
-            window.location.href = "/"; // Chuyển về trang chủ
+
+            // Điều hướng về trang chủ (hoặc trang đích sau đăng nhập)
+            window.location.href = HOME_PAGE_URL;
+            // Server sẽ xử lý session/cookie và Thymeleaf sẽ render đúng giao diện
+
         } catch (error) {
-            alert("Đăng nhập thất bại: " + (error.response?.data?.message || "Đã xảy ra lỗi"));
             console.error("Login Error:", error);
+            let errorMessage = "Đăng nhập thất bại!";
+
+            if (error.response) {
+                // Lỗi có phản hồi từ server (vd: sai mật khẩu, 401, 400)
+                errorMessage = error.response.data?.message || `Lỗi ${error.response.status}: Thông tin đăng nhập không chính xác hoặc tài khoản không tồn tại.`;
+                console.error("Login Server Error Data:", error.response.data);
+            } else if (error.request) {
+                // Lỗi mạng, không nhận được phản hồi
+                errorMessage = "Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng và thử lại.";
+                console.error("Login Network Error (no response):", error.request);
+            } else {
+                // Lỗi khác trong quá trình gửi request
+                errorMessage = "Đã xảy ra lỗi không mong muốn trong quá trình đăng nhập.";
+                console.error("Login Request Setup Error:", error.message);
+            }
+
+            // Hiển thị lỗi cho người dùng
+            // if (loginErrorMessage) loginErrorMessage.textContent = errorMessage;
+            alert(errorMessage); // Dùng alert
+
+            // Bật lại nút submit nếu có lỗi
+            if(submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign In'; // Khôi phục text gốc
+            }
         }
     }
 
-    // --- Hàm xử lý đăng xuất (có thể gọi từ bất kỳ trang nào) ---
+    // --- Hàm xử lý đăng xuất ---
     async function handleLogout(event) {
-        
         event.preventDefault(); // Ngăn thẻ <a> điều hướng
-        console.log("Attempting logout..."); // Debug log
+        console.log("Attempting logout...");
+
+        // Có thể thêm confirm dialog (tùy chọn)
+        if (!confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+            return; // Người dùng hủy
+        }
+
 
         try {
-            // 1. Gọi API backend để hủy session/token phía server
-            await axios.post("/api/auth/logout"); // <--- Thêm dòng này (hoặc bỏ comment)
-            console.log("Server logout request successful."); // Log tùy chọn
-
-            // 2. Nếu API thành công (không ném lỗi), xóa trạng thái ở client
-            sessionStorage.removeItem("isLoggedIn");
+            // Gọi API backend để hủy session/token
+            const response = await axios.post(LOGOUT_API_URL);
+            console.log("Server logout successful:", response.data);
             alert("Đăng xuất thành công!");
 
-            // 3. Cập nhật lại UI navbar ngay lập tức
-            updateLoginNavUI();
-
-            // 4. Chuyển hướng về trang chủ hoặcn trang logi
-            window.location.href = "/"; // Hoặc trang login nếu muốn
+            // Tải lại trang để server render lại giao diện (navbar) với trạng thái chưa đăng nhập
+            window.location.reload();
+            // Hoặc điều hướng về trang đăng nhập nếu muốn:
+            // window.location.href = LOGIN_PAGE_URL;
 
         } catch (error) {
-            // Xử lý lỗi nếu gọi API thất bại hoặc có lỗi khác
-            alert("Đăng xuất thất bại! " + (error.response?.data?.message || "Đã xảy ra lỗi phía client."));
             console.error("Logout Error:", error);
-
-            // Cân nhắc: Dù API lỗi, có thể bạn vẫn muốn xóa trạng thái client
-            // để tránh người dùng bị kẹt ở trạng thái đăng nhập trên giao diện.
-            // Tuy nhiên, điều này có thể che giấu lỗi từ server.
-            // Quyết định này tùy thuộc vào luồng xử lý mong muốn.
-            // Ví dụ: Vẫn xóa và reload
-            /*
-            sessionStorage.removeItem("isLoggedIn");
-            updateLoginNavUI(); // Cập nhật UI trước khi reload
-            location.reload(); // Reload để đảm bảo trạng thái sạch
-            */
-            // Hoặc chỉ thông báo lỗi và không làm gì thêm
+            let errorMessage = "Đăng xuất thất bại!";
+            if (error.response) {
+                errorMessage += ` (${error.response.status}): ${error.response.data?.message || 'Lỗi từ server.'}`;
+            } else if (error.request) {
+                errorMessage += " Không thể kết nối đến máy chủ.";
+            } else {
+                errorMessage += " Lỗi khi gửi yêu cầu.";
+            }
+            alert(errorMessage);
+            console.error("Full Logout Error object:", error);
+            // Có thể vẫn reload để đồng bộ trạng thái client với server nếu cần
+            // window.location.reload();
         }
     }
 
-    // --- Hàm cập nhật UI nút Đăng nhập/Xuất trên navbar ---
-    function updateLoginNavUI() {
-        const isLoggedIn = sessionStorage.getItem("isLoggedIn") === "true";
+    // --- Gắn sự kiện ---
 
-        if (!navLoginLink) {
-            console.error("Navbar login link not found!");
-            return;
-        }
+    // 1. Gắn sự kiện cho Form Đăng nhập (CHỈ KHI form tồn tại trên trang hiện tại)
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+        console.log("Login form event listener attached.");
 
-        // Gỡ bỏ listener cũ trước khi thêm mới để tránh trùng lặp
-        navLoginLink.removeEventListener("click", handleLogout);
-        // Cũng nên gỡ listener login nếu có (dù ít khả năng bị gắn vào đây)
-        // navLoginLink.removeEventListener("click", handleLogin);
+        // Tùy chọn: Xóa thông báo lỗi khi người dùng nhập lại vào các trường
+        // if(loginEmailInput && loginErrorMessage) loginEmailInput.addEventListener('input', () => { loginErrorMessage.textContent = ''; });
+        // if(loginPasswordInput && loginErrorMessage) loginPasswordInput.addEventListener('input', () => { loginErrorMessage.textContent = ''; });
 
-        if (isLoggedIn && !isOnLoginPage) {
-            // Đã đăng nhập VÀ KHÔNG ở trang login/register
-            navLoginLink.textContent = "Đăng xuất";
-            navLoginLink.href = "#"; // Ngăn điều hướng mặc định
-            navLoginLink.addEventListener("click", handleLogout); // Gắn sự kiện đăng xuất
-            console.log("Navbar: Set to Logout button"); // Debug log
-        } else {
-            // Chưa đăng nhập HOẶC đang ở trang login/register
-            navLoginLink.textContent = "Đăng nhập";
-            navLoginLink.href = "/dangnhap-dangky"; // Thay bằng path đúng đến trang login
-            // Không cần gắn listener 'click' ở đây, vì thẻ <a> sẽ tự điều hướng
-            console.log("Navbar: Set to Login button/link"); // Debug log
-        }
+    } else {
+        // Ghi log nếu không tìm thấy form đăng nhập trên trang này (bình thường nếu không ở trang login)
+        // console.log("Login form not found on this page.");
     }
 
-
-    // --- Khởi chạy và Gắn sự kiện ---
-
-    // 1. Gắn sự kiện cho nút đăng nhập trên FORM (nếu tồn tại)
-    if (loginButton) {
-        loginButton.addEventListener("click", handleLogin);
+    // 2. Gắn sự kiện cho nút/link Đăng xuất (CHỈ KHI link tồn tại - tức là đã đăng nhập)
+    if (logoutLink) {
+        logoutLink.addEventListener('click', handleLogout);
+        console.log("Logout link event listener attached.");
+    } else {
+        // Ghi log nếu không tìm thấy link logout (bình thường nếu chưa đăng nhập hoặc không ở trang có navbar đầy đủ)
+        // console.log("Logout link not found (normal if not logged in or not on a page with the full navbar).");
     }
 
-    // 2. Cập nhật trạng thái nút trên NAVBAR ngay khi trang tải
-    updateLoginNavUI();
+    // 3. Gắn sự kiện cho các nút chuyển đổi form Đăng nhập/Đăng ký (CHỈ KHI các nút này tồn tại)
+    if (container && registerBtn && loginBtn) {
+        registerBtn.addEventListener('click', () => {
+            container.classList.add("active");
+            console.log("Switched to Register view");
+            // Có thể xóa lỗi form login cũ khi chuyển đổi (nếu có div lỗi)
+            // if (loginErrorMessage) loginErrorMessage.textContent = '';
+        });
+
+        loginBtn.addEventListener('click', () => {
+            container.classList.remove("active");
+            console.log("Switched to Login view");
+            // Có thể xóa lỗi form sign up cũ khi chuyển đổi
+        });
+        console.log("Login/Register form switch listeners attached.");
+    } else {
+        // Ghi log nếu không tìm thấy các nút chuyển đổi (bình thường nếu không ở trang login/register)
+        // console.log("Login/Register toggle elements not found on this page.");
+    }
 
 });
-
-// --- Phần xử lý chuyển đổi form đăng nhập/đăng ký (giữ nguyên nếu cần) ---
-const container = document.getElementById('container');
-const registerBtn = document.getElementById('register');
-const loginBtn = document.getElementById('login');
-
-if (container && registerBtn && loginBtn) { // Chỉ chạy nếu các nút này tồn tại
-    registerBtn.addEventListener('click', () => {
-        container.classList.add("active");
-    });
-
-    loginBtn.addEventListener('click', () => {
-        container.classList.remove("active");
-    });
-}
