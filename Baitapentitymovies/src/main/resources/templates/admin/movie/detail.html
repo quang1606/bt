@@ -169,7 +169,7 @@
                         <button type="button" class="btn btn-default">
                             <i class="fas fa-chevron-left"></i> Quay lại
                         </button>
-                        <button id="saveMovieBtn"
+                        <button id="updateMovieBtn"
                                 type="button" class="btn btn-info px-4">
                             Cập nhật
                         </button>
@@ -273,7 +273,7 @@
                                         <div class="form-group">
                                             <label>Trạng thái</label>
                                             <!-- Thêm thuộc tính disabled vì đây là trang chi tiết -->
-                                            <select id="status" class="form-control" disabled>
+                                            <select id="status" class="form-control" >
                                                 <!-- Option Nháp: Được chọn nếu movie.status là false -->
                                                 <!-- Giả sử value="0" vẫn đại diện cho false trong hệ thống của bạn -->
                                                 <option value="0" th:selected="${movie.status == false}">
@@ -301,7 +301,7 @@
                                         <div class="form-group">
                                             <label>Loại phim</label>
                                             <!-- Thêm disabled nếu đây là trang chi tiết -->
-                                            <select id="movieType" class="form-control" disabled>
+                                            <select id="movieType" class="form-control" >
                                                 <option value="" disabled th:selected="${movie.getType() == null}">-- Chọn thể loại --</option>
                                                 <!-- Sử dụng #strings.equals để so sánh chuỗi an toàn hơn -->
                                                 <option value="PHIM_BO" th:selected="${#strings.equals(movie.getType(), 'PHIM_BO')}">
@@ -378,6 +378,9 @@
 
 <script src="/admin-assets/plugins/select2/js/select2.full.min.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script th:inline="javascript">
+    let movie = [[${movie}]];
+</script>
 <script>
     //Initialize Select2 Elements
     $(".select2").select2();
@@ -391,6 +394,111 @@
             codeSyntaxHighlighting: true,
         },
     });
+</script>
+<script>
+    function validateMovieData(movieData) {
+        if (!movieData.name) {
+            alert('Tên phim không được để trống');
+            document.getElementById('title').focus();
+            return false;
+        }
+        if (!movieData.trailerUrl) {
+            alert('Trailer không được để trống');
+            document.getElementById('trailer').focus();
+            return false;
+        }
+        if (!movieData.description) {
+            alert('Mô tả không được để trống');
+            document.getElementById('description').focus();
+            return false;
+        }
+        if (!movieData.releaseYear || isNaN(movieData.releaseYear)) {
+            alert('Năm phát hành không được để trống hoặc không hợp lệ');
+            document.getElementById('releaseYear').focus();
+            return false;
+        }
+        if (!movieData.type) {
+            alert('Loại phim không được để trống');
+            document.getElementById('movieType').focus();
+            return false;
+        }
+        if (!movieData.countryId || isNaN(movieData.countryId)) {
+            alert('Quốc gia không được để trống hoặc không hợp lệ');
+            document.getElementById('country').focus();
+            return false;
+        }
+        return true;
+    }
+    async function handleUpdateMovie(event) {
+        event.preventDefault();
+
+        const updateBtn = document.getElementById('updateMovieBtn');
+        updateBtn.disabled = true;
+        updateBtn.textContent = 'Đang cập nhật...';
+
+        // Lấy giá trị ID bộ phim cần cập nhật
+        const movieId = movie.id;
+        if (!movieId) {
+            alert('Không tìm thấy ID phim để cập nhật');
+            updateBtn.disabled = false;
+            updateBtn.textContent = 'Cập nhật phim';
+            return;
+        }
+
+        // Chuyển đổi dữ liệu form
+        const statusValue = document.getElementById('status').value;
+        const statusBoolean = statusValue === '1';
+
+        const movieData = {
+            name: document.getElementById('title').value.trim(),
+            trailerUrl: document.getElementById('trailer').value.trim(),
+            description: document.getElementById('description').value.trim(),
+            releaseYear: parseInt(document.getElementById('releaseYear').value.trim(), 10),
+            type: document.getElementById('movieType').value.trim(),
+            status: statusBoolean,
+            countryId: parseInt(document.getElementById('country').value.trim(), 10),
+            genreIds: Array.from(document.getElementById('genres').selectedOptions).map(option => parseInt(option.value, 10)),
+            actorIds: Array.from(document.getElementById('actor').selectedOptions).map(option => parseInt(option.value, 10)),
+            directorIds: Array.from(document.getElementById('director').selectedOptions).map(option => parseInt(option.value, 10)),
+        };
+        console.log(movieData)
+        console.log(movieId)
+        // Validate dữ liệu
+        if (!validateMovieData(movieData)) {
+            updateBtn.disabled = false;
+            updateBtn.textContent = 'Cập nhật phim';
+            return;
+        }
+
+        try {
+            // Thực hiện gọi API PUT
+            const response = await axios.put(`/api/admin/movies/${movieId}`, movieData);
+            alert('Cập nhật phim thành công!');
+            console.log('Thông tin phim đã cập nhật:', response.data);
+        } catch (error) {
+            console.error('Lỗi khi cập nhật phim:', error);
+
+            if (error.response?.status === 401) {
+                if (window.confirm('Phiên đăng nhập đã hết hạn. Bạn có muốn đăng nhập lại không?')) {
+                    window.location.href = '/dangnhap-dangky';
+                }
+            } else if (error.response?.status === 400 && typeof error.response.data === 'object') {
+                const errors = error.response.data;
+                const firstKey = Object.keys(errors)[0];
+                alert(errors[firstKey]);
+                const el = document.getElementById(firstKey);
+                if (el) el.focus();
+            } else {
+                const errorMessage = error.response?.data?.message || error.message || 'Đã có lỗi xảy ra khi cập nhật phim.';
+                alert('Lỗi: ' + errorMessage);
+            }
+        } finally {
+            updateBtn.disabled = false;
+            updateBtn.textContent = 'Cập nhật phim';
+        }
+    }
+    document.getElementById('updateMovieBtn').addEventListener('click', handleUpdateMovie);
+
 </script>
 </body>
 
