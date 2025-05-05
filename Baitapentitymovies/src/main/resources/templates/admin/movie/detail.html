@@ -317,13 +317,31 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <div class="thumbnail-preview-container mb-3">
-                                                <img src="" alt="" id="thumbnail"/>
+                                            <div class="thumbnail-preview-container mb-3" style="border: 1px dashed #ccc; min-height: 150px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa;">
+                                                <img th:src="${movie != null && movie.thumbnail != null ? movie.thumbnail : ''}"
+                                                     alt="Xem trước thumbnail" id="thumbnail" style="max-width: 100%; max-height: 250px; display: block; margin: auto;"
+                                                     th:styleappend="${movie == null || movie.thumbnail == null} ? 'display: none;' : ''" />
+                                                <!-- Đảm bảo placeholder tồn tại -->
+                                                <span id="thumbnail-placeholder" th:if="${movie == null || movie.thumbnail == null}" style="color: #6c757d;">Chưa có ảnh</span>
                                             </div>
-                                            <button type="button" class="btn btn-info btn-flat" data-toggle="modal"
-                                                    data-target="#modal-xl">
-                                                Chọn hình ảnh
-                                            </button>
+                                            <label for="thumbnail-input" id="thumbnail-upload-label" class="btn btn-info btn-flat">
+                                                <i class="fas fa-upload mr-1"></i> Chọn hoặc đổi ảnh
+                                            </label>
+                                            <input type="file" id="thumbnail-input" class="d-none" accept="image/*" />
+
+                                            <!-- ======================================== -->
+                                            <!-- === THÊM HOẶC KIỂM TRA CÁC DÒNG SAU === -->
+                                            <!-- ======================================== -->
+
+                                            <!-- 1. Input ẩn để lưu URL (Quan trọng nếu cần dùng URL sau này) -->
+                                            <input type="hidden" id="thumbnail-url-hidden" th:value="${movie != null ? movie.thumbnail : ''}" />
+
+                                            <!-- 2. Khu vực hiển thị trạng thái upload -->
+                                            <div id="upload-status" class="mt-2" style="font-style: italic; color: #007bff;"></div>
+
+                                            <!-- ======================================== -->
+                                            <!-- =========== KẾT THÚC PHẦN THÊM ========== -->
+                                            <!-- ======================================== -->
                                         </div>
                                     </div>
                                 </div>
@@ -332,6 +350,116 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-content-center mb-3">
+                                <h4>Danh sách tập phim</h4>
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#modalEpisode">Tạo tập phim</button>
+                            </div>
+                            <table class="table table-bordered table-hover" id="table-episode">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Tên tập phim</th>
+                                    <th style="width: 50%">Link</th>
+                                    <th>Thời lượng</th>
+                                    <th>Trạng thái</th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>Tap 1</td>
+                                    <td class="videoUrl" style="word-break: break-all">
+                                        http://res.cloudinary.com/dchrybytt/image/upload/v1745930233/file_java_27_28/cwim3qrad2mokindunbn.png
+                                    </td>
+                                    <td class="duration">90</td>
+                                    <td>Cong khai</td>
+                                    <td>
+                                        <label class="btn btn-warning btn-sm mb-0"
+                                               for="input-video-1">
+                                            <i class="fas fa-upload"></i>
+                                        </label>
+                                        <input
+                                                type="file"
+                                                id="input-video-1"
+                                                class="d-none"
+                                        >
+                                        <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modalPreview">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalPreview">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Video Preview</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <video width="100%" controls>
+                                <source src="" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade" id="modalEpisode">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">Tao tap phim</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="form-episode">
+                                <div class="form-group">
+                                    <label>Tên tập phim</label>
+                                    <input type="text" class="form-control" id="episodeName" name="name"/>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tập số bao nhiêu</label>
+                                    <input type="text" class="form-control" id="episodeDisplayOrder" name="displayOrder"/>
+                                </div>
+                                <div class="form-group">
+                                    <label>Trạng thái</label>
+                                    <select class="form-control" id="episodeStatus" name="status">
+                                        <option value="false">Ẩn</option>
+                                        <option value="true">Công khai</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
         <div class="modal fade" id="modal-xl" aria-hidden="true">
@@ -499,6 +627,154 @@
     }
     document.getElementById('updateMovieBtn').addEventListener('click', handleUpdateMovie);
 
+</script>
+
+
+<script>
+    $(function() { // Đảm bảo DOM sẵn sàng
+
+        const thumbnailInput = document.getElementById('thumbnail-input');
+        const thumbnailPreview = document.getElementById('thumbnail');
+        const thumbnailPlaceholder = document.getElementById('thumbnail-placeholder');
+        const uploadLabel = document.getElementById('thumbnail-upload-label');
+        const uploadStatus = document.getElementById('upload-status');
+        const hiddenThumbnailUrlInput = document.getElementById('thumbnail-url-hidden'); // Input ẩn để lưu URL
+console.log(thumbnailInput, thumbnailPreview, thumbnailPlaceholder, uploadLabel, uploadStatus, hiddenThumbnailUrlInput)
+        if (!thumbnailInput || !thumbnailPreview || !uploadLabel || !uploadStatus || !hiddenThumbnailUrlInput) {
+            console.error("Một hoặc nhiều thành phần DOM *thiết yếu* cho upload thumbnail bị thiếu! (Input, Preview, Label, Status, Hidden URL)");
+            return; // Dừng nếu thiếu element quan trọng
+        }
+
+
+        thumbnailInput.addEventListener('change', function(event) {
+            const files = event.target.files;
+
+            if (files && files.length > 0) {
+                const selectedFile = files[0];
+
+                // --- 1. Kiểm tra loại file ---
+                if (!selectedFile.type.startsWith('image/')) {
+                    alert('Vui lòng chỉ chọn file hình ảnh (JPEG, PNG, GIF, ...).');
+                    thumbnailInput.value = ''; // Xóa lựa chọn file không hợp lệ
+                    return;
+                }
+
+                // --- 2. Hiển thị Xem trước (Preview) ---
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    // Cập nhật ảnh xem trước
+                    thumbnailPreview.src = e.target.result;
+                    thumbnailPreview.style.display = 'block'; // Hiển thị ảnh
+                    if(thumbnailPlaceholder) thumbnailPlaceholder.style.display = 'none'; // Ẩn placeholder
+                }
+
+                // Đọc file dưới dạng Data URL để xem trước
+                reader.readAsDataURL(selectedFile);
+
+                // --- 3. Gọi API Upload ngay sau khi chọn file ---
+                uploadFile(selectedFile);
+
+            } else {
+                // Người dùng hủy chọn file (ít xảy ra với change event nhưng để chắc chắn)
+                console.log("Không có file nào được chọn.");
+            }
+        });
+
+        async function uploadFile(fileToUpload) {
+            // Lấy Movie ID (cần đảm bảo biến 'movie' tồn tại và có 'id')
+            const movieId = movie?.id;
+            if (!movieId) {
+                alert('Lỗi: Không xác định được ID phim để upload ảnh.');
+                uploadStatus.textContent = 'Lỗi: Thiếu ID phim.';
+                uploadStatus.style.color = 'red';
+                thumbnailInput.value = ''; // Reset input
+                return;
+            }
+
+            // Chuẩn bị FormData
+            const formData = new FormData();
+            formData.append('file', fileToUpload); // 'file' phải khớp với @RequestParam("file") ở backend
+
+            // Cập nhật trạng thái giao diện người dùng
+            uploadLabel.classList.add('disabled'); // Làm mờ nút (thêm CSS nếu cần)
+            uploadLabel.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang tải lên...';
+            thumbnailInput.disabled = true;
+            uploadStatus.textContent = 'Đang tải ảnh lên server...';
+            uploadStatus.style.color = '#007bff'; // Màu xanh dương
+
+            try {
+                const apiUrl = `/api/admin/movies/${movieId}/upload-thumbnail`;
+                console.log(`Gọi API POST: ${apiUrl}`);
+
+                // Gọi API bằng Axios (hoặc Fetch)
+                const response = await axios.post(apiUrl, formData, {
+                    headers: {
+                        // 'Content-Type': 'multipart/form-data' // Axios tự động đặt header này cho FormData
+                    }
+                });
+
+                console.log("Upload thành công, response:", response.data);
+
+                if (response.data && response.data.url) {
+                    const newImageUrl = response.data.url;
+                    alert('Upload hình ảnh thành công!');
+                    uploadStatus.textContent = 'Upload thành công!';
+                    uploadStatus.style.color = 'green';
+
+                    // Cập nhật ảnh preview bằng URL thật từ Cloudinary (tùy chọn)
+                    thumbnailPreview.src = newImageUrl;
+
+                    // Lưu URL mới vào input ẩn (quan trọng nếu cần gửi đi sau này)
+                    if (hiddenThumbnailUrlInput) {
+                        hiddenThumbnailUrlInput.value = newImageUrl;
+                        console.log("Đã cập nhật URL ảnh vào input ẩn:", newImageUrl);
+                    }
+
+                } else {
+                    throw new Error("API không trả về URL hợp lệ."); // Xử lý lỗi nếu response không đúng format
+                }
+
+            } catch (error) {
+                console.error("Lỗi khi upload hình ảnh:", error);
+                let errorMsg = "Upload ảnh thất bại. ";
+                if (error.response) {
+                    // Lỗi từ server (4xx, 5xx)
+                    errorMsg += `Lỗi ${error.response.status}: ${error.response.data?.message || error.response.data || 'Không rõ nguyên nhân từ server.'}`;
+                } else if (error.request) {
+                    // Không nhận được phản hồi
+                    errorMsg += "Không thể kết nối tới server.";
+                } else {
+                    // Lỗi khác
+                    errorMsg += error.message;
+                }
+                alert(errorMsg);
+                uploadStatus.textContent = 'Upload thất bại.';
+                uploadStatus.style.color = 'red';
+
+                // Cân nhắc: Có nên reset ảnh preview về ảnh cũ nếu upload lỗi?
+                // Hoặc giữ nguyên ảnh preview mà người dùng đã chọn?
+                // Ví dụ: Reset về ảnh cũ (nếu có lưu trong input ẩn)
+                // const oldUrl = hiddenThumbnailUrlInput ? hiddenThumbnailUrlInput.value : '';
+                // thumbnailPreview.src = oldUrl;
+                // if (!oldUrl && thumbnailPlaceholder) {
+                //     thumbnailPreview.style.display = 'none';
+                //     thumbnailPlaceholder.style.display = 'block';
+                // }
+
+            } finally {
+                // Luôn luôn kích hoạt lại input và label sau khi hoàn tất
+                thumbnailInput.disabled = false;
+                uploadLabel.classList.remove('disabled');
+                uploadLabel.innerHTML = '<i class="fas fa-upload mr-1"></i> Chọn hoặc đổi ảnh';
+
+                // Xóa trạng thái upload sau một khoảng thời gian
+                setTimeout(() => {
+                    uploadStatus.textContent = '';
+                }, 5000); // Xóa sau 5 giây
+            }
+        }
+    });
 </script>
 </body>
 
