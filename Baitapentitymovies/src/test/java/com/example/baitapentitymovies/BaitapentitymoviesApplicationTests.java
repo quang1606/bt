@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -63,7 +64,7 @@ class BaitapentitymoviesApplicationTests {
         private UserRepository userRepository;
 
         @Autowired
-        private BCryptPasswordEncoder bCryptPasswordEncoder;
+        private PasswordEncoder bCryptPasswordEncoder;
 
         @Test
         void save_countries() {
@@ -151,7 +152,6 @@ class BaitapentitymoviesApplicationTests {
                         .phone(phoneNumber)
                         .password("123")
                         .role(i < 2 ? Role.ADMIN : Role.USERS)
-                        .isEnabled(true)
                         .createdAt(LocalDateTime.now())
                         .updatedAt(LocalDateTime.now())
                         .build();

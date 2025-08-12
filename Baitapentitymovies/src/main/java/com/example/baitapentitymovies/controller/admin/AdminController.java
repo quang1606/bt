@@ -3,6 +3,7 @@ package com.example.baitapentitymovies.controller.admin;
 import com.example.baitapentitymovies.repository.*;
 import com.example.baitapentitymovies.service.MovieService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

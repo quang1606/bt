@@ -30,12 +30,16 @@ public class User {
     @Column(name = "phone", length = 11,unique = true)
     private String phone;
     private String avatar;
-    @Column(name = "is_enabled")
-    private boolean isEnabled;
+
     @Column(name = "create_at")
     private LocalDateTime createdAt;
     @Column(name = "update_at")
     private LocalDateTime updatedAt;
+    @Column(name = "is_active", nullable = false) // Bạn đã có trường này, tốt!
+    private boolean isActive = true; // Giữ nguyên nếu đây là cờ active chung
+
+    @Column(name = "enabled", nullable = false) // Thêm trường này
+    private boolean enabled = false; // Mặc định là false khi tạo mới
 
 
 }

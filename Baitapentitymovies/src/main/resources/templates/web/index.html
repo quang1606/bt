@@ -58,26 +58,29 @@
             </ul>
           </div>
             <div>
-                <!-- Liên kết Đăng nhập khi chưa đăng nhập -->
-                <a th:if="${session.user==null}" class="nav-link ju text-white" th:href="@{/dangnhap-dangky}">Đăng nhập</a>
+                <!-- Liên kết Đăng nhập khi chưa đăng nhập - Sẽ được ẩn/hiện bằng JavaScript -->
+                <a id="nav-login-link" class="nav-link ju text-white" th:href="@{/dangnhap-dangky}">Đăng nhập</a>
 
-                <!-- Dropdown thông tin người dùng khi đã đăng nhập -->
-                <div class="dropdown" th:if="${session.user!=null}">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" th:text="${session.user.getName()}">
-                        <!-- Tên người dùng sẽ được hiển thị ở đây -->
+                <!-- Dropdown thông tin người dùng khi đã đăng nhập - Ban đầu ẩn, JS sẽ hiện -->
+                <div class="dropdown" id="nav-user-dropdown" style="display: none;">
+                    <button id="user-dropdown-button" class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <!-- Tên người dùng sẽ được JS điền vào đây -->
+                        Xin chào
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a th:if= "${session.user.role.toString().equals('ADMIN')}" class="dropdown-item" href="#">Trang quan tri</a></li>
-                        <li><a class="dropdown-item" href="/phim-yeu-thich">Phim yeu thich</a></li>
-                        <li><a class="dropdown-item" href="#">Ho so ca nhan</a></li>
+                        <!-- Link trang quản trị - JS sẽ ẩn/hiện dựa trên role từ token -->
+                        <li><a id="admin-page-link" class="dropdown-item" href="#" style="display: none;">Trang quản trị</a></li>
+                        <li><a class="dropdown-item" th:href="@{/phim-yeu-thich}">Phim yêu thích</a></li>
+                        <li><a class="dropdown-item" href="#">Hồ sơ cá nhân</a></li>
                         <li>
-                            <!-- Thay đổi ID ở đây -->
-                            <a id="logout-link" class="dropdown-item" href="#">Dang xuat</a>
+                            <!-- ID cho link đăng xuất để JS gắn sự kiện -->
+                            <a id="logout-link-homepage" class="dropdown-item" href="#">Đăng xuất</a>
                         </li>
                     </ul>
                 </div>
             </div>
         </div>
+          </div>
       </nav>
     </header>
 
@@ -206,5 +209,133 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <script th:src="@{/javascrip/dangnhapdangky.js}"></script>
+    <!-- ... các script Bootstrap và Axios đã có ... -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <!-- Script dangnhapdangky.js (chứa interceptor và các hàm login/logout chung) NÊN được tải trước -->
+    <script th:src="@{/javascrip/dangnhapdangky.js}"></script>
+
+    <!-- SCRIPT RIÊNG CHO TRANG CHỦ (INDEX.HTML) ĐỂ CẬP NHẬT NAVBAR -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const token = localStorage.getItem('jwtToken');
+
+            // Lấy các phần tử Navbar
+            const navLoginLink = document.getElementById('nav-login-link');
+            const navUserDropdown = document.getElementById('nav-user-dropdown');
+            const userDropdownButton = document.getElementById('user-dropdown-button');
+            const adminPageLink = document.getElementById('admin-page-link');
+            const logoutLinkHomepage = document.getElementById('logout-link-homepage'); // Logout link trên trang chủ
+
+            const LOGIN_PAGE_URL = "/dangnhap-dangky"; // URL trang đăng nhập
+            const ADMIN_DASHBOARD_URL = "/admin/dashboard"; // URL trang quản trị của bạn
+
+            // Hàm giải mã JWT cơ bản (chỉ lấy payload, không xác thực chữ ký ở client)
+            // Bạn NÊN có hàm này trong một file util chung nếu dùng ở nhiều nơi
+            function decodeJwtToken(tokenToDecode) {
+                if (!tokenToDecode) return null;
+                try {
+                    const base64Url = tokenToDecode.split('.')[1];
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(jsonPayload);
+                } catch (e) {
+                    console.error("Error decoding JWT token:", e);
+                    localStorage.removeItem('jwtToken'); // Xóa token hỏng
+                    return null;
+                }
+            }
+
+            function updateUserNavbar() {
+                if (token) {
+                    // Người dùng đã đăng nhập (có token)
+                    if (navLoginLink) navLoginLink.style.display = 'none';
+                    if (navUserDropdown) navUserDropdown.style.display = 'block'; // Hiện dropdown user
+
+                    const decodedToken = decodeJwtToken(token);
+                    if (decodedToken) {
+                        console.log("Decoded Token on Homepage:", decodedToken);
+                        // 'sub' thường là email/username. 'roles' hoặc 'role' là vai trò.
+                        // 'name' hoặc 'fullName' nếu bạn thêm vào claims.
+                        const displayName = decodedToken.name || decodedToken.fullName || decodedToken.sub || "Người dùng";
+                        const userRole = decodedToken.roles || decodedToken.role; // Kiểm tra cả 'roles' và 'role'
+
+                        if (userDropdownButton) userDropdownButton.textContent = `Xin chào, ${displayName}`;
+
+                        // Hiển thị link "Trang quản trị" nếu là ADMIN
+                        if (adminPageLink && userRole && userRole.toUpperCase() === 'ADMIN') {
+                            adminPageLink.style.display = 'block'; // Hoặc 'list-item' nếu là <li>
+                            adminPageLink.href = ADMIN_DASHBOARD_URL;
+                        } else if (adminPageLink) {
+                            adminPageLink.style.display = 'none';
+                        }
+                    } else {
+                        // Token không giải mã được hoặc không có thông tin cần thiết
+                        // Xử lý như chưa đăng nhập
+                        if (navLoginLink) navLoginLink.style.display = 'block';
+                        if (navUserDropdown) navUserDropdown.style.display = 'none';
+                        if (userDropdownButton) userDropdownButton.textContent = "Xin chào";
+                        if (adminPageLink) adminPageLink.style.display = 'none';
+                    }
+
+                    // Gắn sự kiện cho nút đăng xuất trên trang chủ
+                    // Đảm bảo rằng hàm handleLogout từ dangnhapdangky.js có thể truy cập được
+                    // hoặc định nghĩa lại logic logout ở đây.
+                    if (logoutLinkHomepage && typeof handleLogout === 'function') {
+                        // Nếu handleLogout đã được định nghĩa global từ dangnhapdangky.js
+                        logoutLinkHomepage.addEventListener('click', handleLogout);
+                    } else if (logoutLinkHomepage) {
+                        // Hoặc định nghĩa logic logout cơ bản ngay tại đây
+                        logoutLinkHomepage.addEventListener('click', async function(event) {
+                            event.preventDefault();
+                            if (!confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+                                return;
+                            }
+                            try {
+                                // Gọi API logout của backend (nếu có logic đặc biệt như blacklist token)
+                                // const apiToken = localStorage.getItem('jwtToken'); // Lấy token hiện tại
+                                // if(apiToken) {
+                                //    await axios.post("/api/auth/logout", {}, { headers: {'Authorization': `Bearer ${apiToken}`}});
+                                // }
+                                localStorage.removeItem('jwtToken');
+                                console.log("Token removed, logging out from homepage.");
+                                alert('Đăng xuất thành công!');
+                                window.location.href = LOGIN_PAGE_URL; // Điều hướng về trang đăng nhập
+                            } catch (err) {
+                                console.error("Logout error on homepage:", err);
+                                alert('Đã xảy ra lỗi khi đăng xuất. Vui lòng thử lại.');
+                                // Dù lỗi server, vẫn xóa token và điều hướng
+                                localStorage.removeItem('jwtToken');
+                                window.location.href = LOGIN_PAGE_URL;
+                            }
+                        });
+                    }
+
+                } else {
+                    // Người dùng chưa đăng nhập (không có token)
+                    if (navLoginLink) navLoginLink.style.display = 'block';
+                    if (navUserDropdown) navUserDropdown.style.display = 'none';
+                }
+            }
+
+            updateUserNavbar(); // Gọi hàm để cập nhật UI Navbar khi trang tải xong
+
+            // (Tùy chọn) Lắng nghe sự kiện thay đổi storage từ các tab khác
+            window.addEventListener('storage', function(event) {
+                if (event.key === 'jwtToken') {
+                    // console.log("Token changed in another tab/window. Updating navbar.");
+                    // Cập nhật lại UI nếu token thay đổi ở tab khác (đăng nhập/đăng xuất ở tab khác)
+                    // Cần cẩn thận để tránh gọi lại updateUserNavbar nếu không cần thiết hoặc gây vòng lặp
+                    // Cách đơn giản nhất là reload lại trang để lấy trạng thái mới nhất
+                    window.location.reload();
+                }
+            });
+        });
+    </script>
+  </body>
+</html>
   </body>
 </html>

@@ -1,3 +1,36 @@
+// --- Cấu hình Axios Interceptor (ĐẶT Ở ĐẦU FILE HOẶC FILE CONFIG RIÊNG) ---
+axios.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('jwtToken');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+);
+
+// Optional: Interceptor để xử lý lỗi 401 (Unauthorized) toàn cục
+axios.interceptors.response.use(
+    response => response, // Chỉ trả về response nếu không có lỗi
+    error => {
+        if (error.response && error.response.status === 401) {
+            // Xử lý khi token không hợp lệ hoặc hết hạn
+            console.error("Unauthorized request or token expired:", error.response.data);
+            localStorage.removeItem('jwtToken'); // Xóa token hỏng/hết hạn
+            alert("Phiên đăng nhập của bạn đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.");
+            // Điều hướng về trang đăng nhập
+            // Đảm bảo không tạo vòng lặp vô hạn nếu trang đăng nhập cũng dùng interceptor này
+            if (window.location.pathname !== "/dangnhap-dangky") { // Thay bằng URL trang đăng nhập của bạn
+                window.location.href = "/dangnhap-dangky"; // URL trang đăng nhập
+            }
+        }
+        return Promise.reject(error); // Chuyển lỗi đi để các catch khác có thể xử lý
+    }
+);
+
 document.addEventListener("DOMContentLoaded", function () {
 
     // --- Các phần tử và URL quan trọng ---
@@ -56,16 +89,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         try {
-            // Gọi API đăng nhập bằng Axios
             const response = await axios.post(LOGIN_API_URL, payload);
 
-            console.log("Login successful:", response.data);
-            alert("Đăng nhập thành công!");
+            // QUAN TRỌNG: LƯU TOKEN
+            if (response.data && response.data.token) {
+                localStorage.setItem('jwtToken', response.data.token); // Lưu vào Local Storage
+                // Hoặc sessionStorage.setItem('jwtToken', response.data.token); nếu muốn token mất khi đóng tab
+                console.log("Login successful, token stored:", response.data.token);
+                alert("Đăng nhập thành công!");
 
-            // Điều hướng về trang chủ (hoặc trang đích sau đăng nhập)
-            window.location.href = HOME_PAGE_URL;
-            // Server sẽ xử lý session/cookie và Thymeleaf sẽ render đúng giao diện
-
+                // Điều hướng về trang chủ
+                window.location.href = HOME_PAGE_URL;
+            } else {
+                console.error("Login successful, but no token received in response:", response.data);
+                alert("Đăng nhập thành công nhưng không nhận được token xác thực.");
+            }
         } catch (error) {
             console.error("Login Error:", error);
             let errorMessage = "Đăng nhập thất bại!";
@@ -106,32 +144,43 @@ document.addEventListener("DOMContentLoaded", function () {
             return; // Người dùng hủy
         }
 
-
+        const token = localStorage.getItem('jwtToken');
         try {
-            // Gọi API backend để hủy session/token
-            const response = await axios.post(LOGOUT_API_URL);
-            console.log("Server logout successful:", response.data);
+            // Gọi API backend để hủy session/token (nếu backend có hỗ trợ blacklist)
+            // Nếu backend không có logic logout đặc biệt cho JWT (chỉ dựa vào client xóa token),
+            // bạn có thể bỏ qua bước gọi API này hoặc gọi một endpoint hình thức.
+            if (token) { // Chỉ gọi API logout nếu có token
+                await axios.post(LOGOUT_API_URL, {}, { // Gửi object rỗng nếu API không cần body
+                    headers: {
+                        // 'Authorization': `Bearer ${token}` // Gửi token nếu API logout của bạn cần nó để blacklist
+                    }
+                });
+                console.log("Server-side logout (if implemented) successful.");
+            }
+
+
+            // QUAN TRỌNG: XÓA TOKEN KHỎI CLIENT-SIDE
+            localStorage.removeItem('jwtToken');
+            console.log("Token removed from local storage.");
             alert("Đăng xuất thành công!");
 
-            // Tải lại trang để server render lại giao diện (navbar) với trạng thái chưa đăng nhập
-            window.location.reload();
-            // Hoặc điều hướng về trang đăng nhập nếu muốn:
-            // window.location.href = LOGIN_PAGE_URL;
+            // Tải lại trang hoặc điều hướng về trang đăng nhập
+            window.location.href = "/dangnhap-dangky"; // Điều hướng về trang đăng nhập thường tốt hơn reload
+            // window.location.reload();
 
         } catch (error) {
             console.error("Logout Error:", error);
             let errorMessage = "Đăng xuất thất bại!";
-            if (error.response) {
-                errorMessage += ` (${error.response.status}): ${error.response.data?.message || 'Lỗi từ server.'}`;
-            } else if (error.request) {
-                errorMessage += " Không thể kết nối đến máy chủ.";
-            } else {
-                errorMessage += " Lỗi khi gửi yêu cầu.";
-            }
+            // ... (phần xử lý lỗi giữ nguyên) ...
             alert(errorMessage);
-            console.error("Full Logout Error object:", error);
-            // Có thể vẫn reload để đồng bộ trạng thái client với server nếu cần
-            // window.location.reload();
+
+            // Ngay cả khi logout API thất bại, vẫn nên xóa token phía client để đảm bảo
+            localStorage.removeItem('jwtToken');
+            console.log("Token removed from local storage despite server error during logout.");
+            // Và điều hướng người dùng ra
+            if (window.location.pathname !== "/dangnhap-dangky") {
+                window.location.href = "/dangnhap-dangky";
+            }
         }
     }
 

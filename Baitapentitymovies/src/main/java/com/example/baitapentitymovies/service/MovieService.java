@@ -28,7 +28,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MovieService {
     private final MovieRepository movieRepository;
-    private final HttpSession session;
+
     private final CountryRepository countryRepository;
     private final GenresRepository genresRepository;
     private final ActorsRepository actorsRepository;

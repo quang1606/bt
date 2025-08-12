@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FavoritesRepository extends JpaRepository<Favorites, Integer> {
     // lay  dnah sach phim  yeu thích chi tiêt theo user
@@ -16,7 +17,8 @@ public interface FavoritesRepository extends JpaRepository<Favorites, Integer> {
     Page<Movie> findMoviesByUserId(@Param("userId") int userId, Pageable pageable);
 
     // tim kiem phim yeu thích theo user
-    Favorites findFavoritesByMovie_IdAndUser_Id(int movieId, Integer userId);
+    Optional<Favorites> findFavoritesByMovie_IdAndUser_Id(int movieId, int userId);
+
 
 
     //tim kiem tất cả phim yêu thích theo userid

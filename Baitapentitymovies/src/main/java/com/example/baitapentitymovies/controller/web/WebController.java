@@ -74,7 +74,7 @@ public class WebController {
     }
 
     @GetMapping("/phim/{id}/{slug}")
-    public String getMovieDetailsPage(@PathVariable Integer id, @PathVariable String slug, Model model) {
+    public String getMovieDetailsPage(@PathVariable Integer id, @PathVariable String slug, Model model, HttpServletRequest request ) {
         Movie movieList = movieService.findByIdSlugStatus(id, slug);
         List<Movie> moviePage = movieService.findBySlugAndStatus(movieList.getType(),true,6);
         List<Episodes> episodes =movieService.findEpisodesByMovieTypeSorted(id,true);
@@ -85,11 +85,11 @@ public class WebController {
         model.addAttribute("moviePage", moviePage);
         model.addAttribute("episodes", episodes);
         model.addAttribute("moviePage1", moviePage1);
+        User currentUser = (User) request.getAttribute("currentUser");
+        if (currentUser != null) {
+             model.addAttribute("loggedInUser", currentUser);
+         }
 
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("user", user);
-        }
         return "web/chitietphim";
     }
     @GetMapping("/xem-phim/{id}/{slug}")

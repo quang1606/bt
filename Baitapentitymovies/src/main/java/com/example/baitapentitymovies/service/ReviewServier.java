@@ -9,6 +9,7 @@ import com.example.baitapentitymovies.model.request.UpdateReviewRequest;
 import com.example.baitapentitymovies.repository.MovieRepository;
 import com.example.baitapentitymovies.repository.ReviewsRepository;
 import com.example.baitapentitymovies.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,14 +27,22 @@ public class ReviewServier {
     private final ReviewsRepository reviewsRepository;
     private final MovieRepository movieRepository;
     private final UserRepository userRepository;
+    private final HttpServletRequest request;
+    public User getCurrentUser() {
+        User user = (User) request.getAttribute("currentUser");
+        if (user == null) {
+            throw new BadRequestException("Không tìm thấy thông tin người dùng đã xác thực.");
+        }
+        return user;
+    }
     public Page<Reviews> getReviewsByMovie(Integer movieId, Integer page, Integer pageSize) {
         Pageable pageable = PageRequest.of(page - 1, pageSize, Sort.by("createdAt").descending());
         return reviewsRepository.findByMovie_Id(movieId,pageable);
     }
 
     public Reviews createReview(CreateReviewRequest request) {
-        // TODO:fix login user
-        User user = (User) session.getAttribute("user");
+
+        User user = getCurrentUser();
 
 
            Movie movie = movieRepository.findById(request.getMovieId()).orElseThrow(()->new RuntimeException("Khong tim thay id co"+request.getMovieId()));
@@ -50,8 +59,7 @@ public class ReviewServier {
 
     public Reviews updateReview(Integer id, UpdateReviewRequest request) {
         // TODO:fix login user
-        User user = (User) session.getAttribute("user");
-
+        User user = getCurrentUser();
 
         Reviews reviews = reviewsRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay id co"+id));
 
@@ -65,7 +73,7 @@ public class ReviewServier {
     }
 
     public void deleteReview(Integer id) {
-        User user = (User) session.getAttribute("user");
+        User user = getCurrentUser();
 
         Reviews reviews = reviewsRepository.findById(id).orElseThrow(()->new RuntimeException("Khong tim thay id co"+id));
         if (!reviews.getUser().getId().equals(user.getId())) {

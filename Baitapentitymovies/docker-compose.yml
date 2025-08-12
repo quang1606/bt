@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    # 1. THAY ĐỔI: Tên container phải là duy nhất
+    container_name: movie-redis
+    ports:
+      # 2. THAY ĐỔI: Sử dụng một cổng khác trên máy host (ví dụ: 6380)
+      # Cổng bên trong container vẫn là 6379
+      - "6380:6379"
+    volumes:
+      # 3. THAY ĐỔI: Sử dụng một volume riêng để không lẫn lộn dữ liệu
+      - movie_redis_data:/data
+    networks:
+      # 4. THAY ĐỔI: Sử dụng một network riêng cho project movie
+      - movie_network
+
+volumes:
+  # Khai báo volume với tên mới
+  movie_redis_data: {}
+
+networks:
+  # Khai báo network với tên mới
+  movie_network:
+    driver: bridge
